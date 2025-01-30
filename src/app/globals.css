@@ -19,3 +19,12 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+@media print {
+  #pdfContent {
+      width: 100%;
+      min-height: 297mm; /* A4 height */
+      min-width: 210mm;  /* A4 width */
+  }
+}
