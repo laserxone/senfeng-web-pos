@@ -286,7 +286,7 @@ export default function POS() {
             :
             <div style={{ width: 'fit-content' }}>
                 <Box style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', padding: 10, backgroundColor: '#0072BC', color: 'white', }}>
-                    <Text style={{ fontSize: 30, fontWeight: '700' }}>SENFENG POS</Text>
+                    <Text style={{ fontSize: 30, fontWeight: '700', marginTop:0, paddingTop:0 }}>SENFENG POS</Text>
                 </Box>
                 <Grid templateColumns={isMobile ? "1fr" : "1fr 1fr"} minH="100vh" px={4} gap={4}>
 
@@ -314,7 +314,7 @@ export default function POS() {
                                                 <Box key={index} _hover={{ backgroundColor: '#EFF9FFFF', opacity: 0.7, cursor: 'pointer' }}>
                                                     <Text
                                                         onClick={() => handleSelectCustomer(customer)}
-                                                        style={{ listStyle: "none", padding: "5px" }}
+                                                        style={{ listStyle: "none", padding: "5px", marginTop:0, paddingTop:0 }}
                                                     >
                                                         {customer.name} ({customer.phone})
                                                     </Text>
@@ -331,7 +331,7 @@ export default function POS() {
                         <InputField title="Company Name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
 
                         <Box w="100%">
-                            <Text fontWeight="bold" fontSize="lg" mb={2}>Address</Text>
+                            <Text style={{ marginTop:0, paddingTop:0}} fontWeight="bold" fontSize="lg" mb={2}>Address</Text>
                             <Textarea
                                 resize="none"
                                 value={address}
@@ -452,39 +452,39 @@ export default function POS() {
                                             <tr style={{ backgroundColor: '#0072BC', color: 'white', fontSize: 14 }}>
                                                 {['Sr.', 'Description', 'Quantity', 'Unit Price', 'Amount'].map((header, index) => (
                                                     <th key={index} style={{ border: '1px solid #D1D5DB', padding: '0.5rem', textAlign: 'left' }}>
-                                                        <Text fontWeight={500}>{header}</Text></th>
+                                                        <Text style={{marginTop:0, paddingTop:0}} fontWeight={500}>{header}</Text></th>
                                                 ))}
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {invoiceItems.map((item, i) => (
                                                 <tr key={i} style={{ backgroundColor: i % 2 === 0 ? "#f1f1f1" : "white", fontSize: 14, height: 30 }}>
-                                                    <td style={{ border: '1px solid #D1D5DB', paddingLeft: 5, }}><Text>{i + 1}</Text></td>
+                                                    <td style={{ border: '1px solid #D1D5DB', paddingLeft: 5, }}><Text style={{marginTop:0, paddingTop:0}}>{i + 1}</Text></td>
                                                     <td style={{ border: '1px solid #D1D5DB', paddingLeft: 5, width: '400px', }}>
                                                         <div style={{ width: '100%', backgroundColor: 'transparent', border: 'none' }}>
-                                                            <Text>{item?.description}</Text>
+                                                            <Text style={{marginTop:0, paddingTop:0}}>{item?.description}</Text>
                                                         </div>
                                                     </td>
                                                     <td style={{ border: '1px solid #D1D5DB', paddingLeft: 5, }}>
                                                         <div style={{ width: '100%', backgroundColor: 'transparent', border: 'none' }}>
-                                                            <Text>{item?.qty}</Text>
+                                                            <Text style={{marginTop:0, paddingTop:0}}>{item?.qty}</Text>
                                                         </div>
                                                     </td>
                                                     <td style={{ border: '1px solid #D1D5DB', paddingLeft: 5, }}>
                                                         <div style={{ width: '100%', backgroundColor: 'transparent', border: 'none' }}>
-                                                            <Text>{item?.price}</Text>
+                                                            <Text style={{marginTop:0, paddingTop:0}}>{item?.price}</Text>
                                                         </div>
                                                     </td>
                                                     <td style={{ border: '1px solid #D1D5DB', paddingLeft: 5, }}>
                                                         <div style={{ width: '100%', backgroundColor: 'transparent', border: 'none' }}>
-                                                            <Text>{item?.total}</Text>
+                                                            <Text style={{marginTop:0, paddingTop:0}}>{item?.total}</Text>
                                                         </div>
                                                     </td>
                                                 </tr>
                                             ))}
                                             {invoiceItems.length <= 10 && [...Array(10 - invoiceItems.length)].map((_, i) => (
                                                 <tr key={i} style={{ fontSize: 14, height: 30 }}>
-                                                    <td className="border border-gray-300 " style={{ paddingLeft: 5, }}><Text>{i + invoiceItems.length + 1}</Text></td>
+                                                    <td className="border border-gray-300 " style={{ paddingLeft: 5, }}><Text style={{marginTop:0, paddingTop:0}}>{i + invoiceItems.length + 1}</Text></td>
                                                     <td className="border border-gray-300 " style={{ paddingLeft: 5, }}>
 
                                                     </td>
@@ -507,10 +507,10 @@ export default function POS() {
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 5 }}>
                                     <div style={{ width: '300px', display: 'flex', }}>
                                         <div style={{ flex: 1, height: '200px', backgroundColor: '#0072BC', color: 'white', paddingLeft: 5, height: 50, display: 'flex', alignItems: 'center', fontWeight: '600' }}>
-                                            <Text>Total Amount</Text>
+                                            <Text style={{marginTop:0, paddingTop:0}}>Total Amount</Text>
                                         </div>
                                         <div style={{ flex: 1, height: '200px', backgroundColor: '#0072BC', color: 'white', paddingLeft: 10, height: 50, display: 'flex', alignItems: 'center', fontWeight: '600', borderLeft: '1px solid', borderColor: 'white' }}>
-                                            <Text>{totalAmount && new Intl.NumberFormat('en-US').format(totalAmount)}/-</Text>
+                                            <Text style={{marginTop:0, paddingTop:0}}>{totalAmount && new Intl.NumberFormat('en-US').format(totalAmount)}/-</Text>
                                         </div>
                                     </div>
                                 </div>
@@ -532,7 +532,7 @@ export default function POS() {
                         <ModalCloseButton />
                         <ModalBody overflowY={'auto'}>
                             <VStack >
-                                <Text alignSelf={'flex-start'} fontSize={18} fontWeight={700}>START ADDING YOUR ITEMS</Text>
+                                <Text style={{marginTop:0, paddingTop:0}} alignSelf={'flex-start'} fontSize={18} fontWeight={700}>START ADDING YOUR ITEMS</Text>
                                 <Input placeholder='Search items here' value={search} onChange={(e) => setSearch(e.target.value)} />
                                 <Wrap gap={2}>
                                     {stock.filter((item) => item?.name?.toLowerCase().includes(search.toLowerCase())).map((item, index) => (
@@ -546,13 +546,13 @@ export default function POS() {
                                                         setOther("")
                                                     }
                                                 }} _hover={item.name === 'Other' && { cursor: 'pointer', opacity: 0.7 }} w={'300px'} borderWidth={1} borderRadius="lg" shadow="md" fontSize={13} display={'flex'} flexDir={'column'} p={5}>
-                                                    <Text >{item.name}</Text>
-                                                    <Text>In stock: {item.qty}</Text>
-                                                    <Text>Price: {item.price}</Text>
+                                                    <Text style={{marginTop:0, paddingTop:0}}>{item.name}</Text>
+                                                    <Text style={{marginTop:0, paddingTop:0}}>In stock: {item.qty}</Text>
+                                                    <Text style={{marginTop:0, paddingTop:0}}>Price: {item.price}</Text>
 
                                                     <div style={{ display: 'flex', gap: '5px', marginTop: '5px' }}>
                                                         <Icon onClick={() => handleDecrease(item)} _hover={{ cursor: 'pointer', opacity: 0.7 }} as={FaMinusCircle} boxSize={'20px'} color={'red'} />
-                                                        <Text> {invoiceItems.find((eachItem) => eachItem.id === item.id)?.qty}</Text>
+                                                        <Text style={{marginTop:0, paddingTop:0}}> {invoiceItems.find((eachItem) => eachItem.id === item.id)?.qty}</Text>
                                                         <Icon onClick={() => handleIncrease(item)} _hover={{ cursor: 'pointer', opacity: 0.7 }} as={FaPlusCircle} boxSize={'20px'} color={'green'} />
                                                     </div>
 
@@ -567,7 +567,7 @@ export default function POS() {
                                                     setQty("")
                                                     setPrice("")
                                                 }} _hover={{ cursor: 'pointer', opacity: 0.7 }} w={'300px'} borderWidth={1} borderRadius="lg" shadow="md" display={'flex'} flexDir={'column'} p={10} alignItems={'center'} justifyContent={'center'} backgroundColor={showOther ? 'blue.100' : 'white'}>
-                                                    <Text fontSize={18} fontWeight={'bold'}>Other</Text>
+                                                    <Text style={{marginTop:0, paddingTop:0}} fontSize={18} fontWeight={'bold'}>Other</Text>
 
                                                 </Box>
                                             </WrapItem>
@@ -591,7 +591,7 @@ export default function POS() {
                                     <>
                                         <TextInput title={"Enter Item Name"} value={other} onChange={(e) => setOther(e.target.value)} />
                                         <Box gap={"5px"} width={"100%"}>
-                                            <Text style={{ fontWeight: "600", fontSize: "18" }}>Enter Quantity</Text>
+                                            <Text style={{ fontWeight: "600", fontSize: "18", marginTop:0, paddingTop:0 }}>Enter Quantity</Text>
                                             <Input
                                                 type="number"
                                                 placeholder="Quantity"
@@ -602,7 +602,7 @@ export default function POS() {
                                         </Box>
 
                                         <Box gap={"5px"} width={"100%"}>
-                                            <Text style={{ fontWeight: "600", fontSize: "18" }}>Enter Price</Text>
+                                            <Text style={{ fontWeight: "600", fontSize: "18", marginTop:0, paddingTop:0 }}>Enter Price</Text>
                                             <Input
                                                 type="number"
                                                 placeholder="Enter Price"
@@ -635,7 +635,7 @@ export default function POS() {
 
 const InputField = ({ title, value, onChange, onBlur, onFocus }) => (
     <Box w="100%">
-        <Text fontWeight="bold" fontSize="md" mb={1}>{title}</Text>
+        <Text style={{marginTop:0, paddingTop:0}} fontWeight="bold" fontSize="md" mb={1}>{title}</Text>
         <Input
             onFocus={onFocus}
             onBlur={onBlur}
@@ -655,24 +655,24 @@ const BankDetail = () => {
             <table className="w-full border-collapse">
                 <tbody style={{ fontSize: 14 }}>
                     <tr style={{ height: 40 }}>
-                        <td className="border border-gray-300 w-50" style={{ paddingLeft: 5 }}><Text>Bank</Text></td>
-                        <td style={{ color: '#0072BC', fontWeight: '700', paddingLeft: 5 }} className="border border-gray-300"><Text>United Bank Limited (UBL)</Text></td>
+                        <td className="border border-gray-300 w-50" style={{ paddingLeft: 5 }}><Text style={{marginTop:0, paddingTop:0}}>Bank</Text></td>
+                        <td style={{ color: '#0072BC', fontWeight: '700', paddingLeft: 5 }} className="border border-gray-300"><Text style={{marginTop:0, paddingTop:0}}>United Bank Limited (UBL)</Text></td>
                     </tr>
                     <tr className="bg-[#FFE4E1]" style={{ height: 40 }}>
-                        <td className="border border-gray-300"><Text style={{ paddingLeft: 5 }}>Account Title</Text></td>
-                        <td style={{ color: '#0072BC', fontWeight: '700', paddingLeft: 5 }} className="border border-gray-300 "><Text>SENFENG PAKISTAN</Text></td>
+                        <td className="border border-gray-300"><Text style={{ paddingLeft: 5, marginTop:0, paddingTop:0 }}>Account Title</Text></td>
+                        <td style={{ color: '#0072BC', fontWeight: '700', paddingLeft: 5 }} className="border border-gray-300 "><Text style={{marginTop:0, paddingTop:0}}>SENFENG PAKISTAN</Text></td>
                     </tr>
                     <tr style={{ height: 40 }}>
-                        <td className="border border-gray-300"><Text style={{ paddingLeft: 5 }}>Account Number</Text></td>
-                        <td style={{ color: '#0072BC', fontWeight: '700', paddingLeft: 5 }} className="border border-gray-300 "><Text>321618245</Text></td>
+                        <td className="border border-gray-300"><Text style={{ paddingLeft: 5, marginTop:0, paddingTop:0 }}>Account Number</Text></td>
+                        <td style={{ color: '#0072BC', fontWeight: '700', paddingLeft: 5 }} className="border border-gray-300 "><Text style={{marginTop:0, paddingTop:0}}>321618245</Text></td>
                     </tr>
                     <tr className="bg-[#FFE4E1]" style={{ height: 40 }}>
-                        <td className="border border-gray-300"><Text style={{ paddingLeft: 5 }}>IBAN</Text></td>
-                        <td style={{ color: '#0072BC', fontWeight: '700', paddingLeft: 5 }} className="border border-gray-300 "><Text>PK33UNIL0109000321618245</Text></td>
+                        <td className="border border-gray-300"><Text style={{ paddingLeft: 5, marginTop:0, paddingTop:0 }}>IBAN</Text></td>
+                        <td style={{ color: '#0072BC', fontWeight: '700', paddingLeft: 5 }} className="border border-gray-300 "><Text style={{marginTop:0, paddingTop:0}}>PK33UNIL0109000321618245</Text></td>
                     </tr>
                     <tr style={{ height: 40 }}>
-                        <td className="border border-gray-300"><Text style={{ paddingLeft: 5 }}>Branch Code</Text></td>
-                        <td style={{ color: '#0072BC', fontWeight: '700', paddingLeft: 5 }} className="border border-gray-300 "><Text>0508</Text></td>
+                        <td className="border border-gray-300"><Text style={{ paddingLeft: 5, marginTop:0, paddingTop:0 }}>Branch Code</Text></td>
+                        <td style={{ color: '#0072BC', fontWeight: '700', paddingLeft: 5 }} className="border border-gray-300 "><Text style={{marginTop:0, paddingTop:0}}>0508</Text></td>
                     </tr>
                 </tbody>
             </table>
@@ -687,7 +687,7 @@ const FormField = ({ phoneNumber, address, companyName, name, manager, inv }) =>
                 <div key={label} style={{ display: 'flex', flexDirection: 'column' }}>
                     <label style={{ color: '#7F7F7FFF', marginLeft: 10, fontWeight: '600' }}>{label}:</label>
                     <div style={{ backgroundColor: '#dce4f1', paddingLeft: 10, border: '1px solid #E5E7EB', maxWidth: '600px', height: 30, fontSize: 18, display: 'flex', alignItems: 'center' }}>
-                        <Text>
+                        <Text style={{marginTop:0, paddingTop:0}}>
                             {index == 0 ? companyName : index == 1 ? name : index == 2 ? phoneNumber : index == 3 ? address : index == 4 ? manager : index == 5 ? inv : ""}
                         </Text>
                     </div>
@@ -703,10 +703,10 @@ const CompanyDetails = () => {
     return (
         <div style={{ alignItems: 'flex-end', display: 'flex', flexDirection: 'column', }}>
             <div style={{ marginRight: 10, gap: 0, fontWeight: '600', fontSize: '14px', }}>
-                <Text style={{ color: '#0072BC', fontSize: 18, fontWeight: '700' }} mb={0} mt={0}>SENFENG PAKISTAN</Text>
-                <Text style={{ color: '#7F7F7FFF', }} mb={0} mt={0}>Street# 2, Sharif Garden Daroghawala,</Text>
-                <Text style={{ color: '#7F7F7FFF', }} mb={0} mt={0}>Lahore, Punjab 54000, Pakistan</Text>
-                <Text style={{ color: '#7F7F7FFF', }} mb={0} mt={0}>senfenglaserpakistan@gmail.com</Text>
+                <Text style={{ color: '#0072BC', fontSize: 18, fontWeight: '700',marginTop:0, paddingTop:0 }} mb={0} mt={0}>SENFENG PAKISTAN</Text>
+                <Text style={{ color: '#7F7F7FFF', marginTop:0, paddingTop:0 }} mb={0} mt={0}>Street# 2, Sharif Garden Daroghawala,</Text>
+                <Text style={{ color: '#7F7F7FFF',marginTop:0, paddingTop:0 }} mb={0} mt={0}>Lahore, Punjab 54000, Pakistan</Text>
+                <Text style={{ color: '#7F7F7FFF',marginTop:0, paddingTop:0 }} mb={0} mt={0}>senfenglaserpakistan@gmail.com</Text>
             </div>
         </div>
     )
@@ -718,7 +718,7 @@ const Header = () => {
             {/* <Text fontSize={60} color={'#0072BC'} fontWeight={'800'}>SENFENG</Text> */}
             <Image src={"/logo.png"} alt="My Local Image" style={{ height: '70px', width: '350px' }} />
             <Box style={{ backgroundColor: '#0072BC', borderTopLeftRadius: 20, borderTopRightRadius: 20, marginRight: 70, width: '250px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} >
-                <Text style={{ fontSize: '30px', fontWeight: '600', color: 'white', }}>
+                <Text style={{ fontSize: '30px', fontWeight: '600', color: 'white',marginTop:0, paddingTop:0 }}>
                     INVOICE
                 </Text>
             </Box>
@@ -729,7 +729,7 @@ const Header = () => {
 const Disclaimer = () => {
     return (
         <div className="text-center text-gray-500 text-sm" style={{ color: '#0072BC', fontWeight: '600' }}>
-            <Text>DISCLAIMER: This is an auto generated Invoice and does not require a signature.</Text>
+            <Text style={{marginTop:0, paddingTop:0}}>DISCLAIMER: This is an auto generated Invoice and does not require a signature.</Text>
         </div>
     )
 }
@@ -739,11 +739,11 @@ const Footer = () => {
         < div style={{ paddingTop: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#0072BC', marginLeft: 20 }} >
             <div style={{ fontWeight: '600', fontSize: 18, display: 'flex', alignItems: 'center', gap: 5 }}>
                 <FaPhone size={'25px'} />
-                <Text>+92 333 9180410</Text>
+                <Text style={{marginTop:0, paddingTop:0}}>+92 333 9180410</Text>
             </div>
             <div style={{ marginRight: 20, fontWeight: '600', fontSize: 18, display: 'flex', alignItems: 'center', gap: 5 }}>
                 <FaGlobe size={'25px'} />
-                <Text>www.senfenglaserpk.com</Text>
+                <Text style={{marginTop:0, paddingTop:0}}>www.senfenglaserpk.com</Text>
             </div>
         </div >
     )

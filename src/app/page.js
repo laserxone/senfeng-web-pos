@@ -1,5 +1,7 @@
-import { redirect } from "next/navigation";
+import POS from "@/components/POS";
 
 export default function Home() {
- redirect("/pos")
+ return (
+    <POS />
+ )
 }
