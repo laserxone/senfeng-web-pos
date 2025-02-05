@@ -6,7 +6,7 @@ import TextInput from './TextInput';
 import { FaGlobe, FaMinusCircle, FaPlus, FaPlusCircle, } from "react-icons/fa";
 import { FaPhone } from 'react-icons/fa6'
 import moment from 'moment';
-import Loading from '@/components/Loading';
+import Loading from './Loading';
 import InvoicePDF from './invoicePDF';
 import { pdf } from '@react-pdf/renderer';
 
@@ -64,7 +64,7 @@ export default function POS() {
 
         const modified = stock.filter((item) => item?.modified)
 
-        axios.put("https://senfeng-web.vercel.app/api/pos/customer", {
+        axios.put("/api/pos/customer", {
             name: name,
             company: companyName,
             phone: phoneNumber,
@@ -74,7 +74,7 @@ export default function POS() {
         })
 
         if (modified.length > 0) {
-            axios.put("https://senfeng-web.vercel.app/api/pos", {
+            axios.put("/api/pos", {
                 entries: modified,
                 name: name,
                 company: companyName,
@@ -102,7 +102,7 @@ export default function POS() {
 
     const fetchData = async () => {
         clearAll()
-        axios.get("https://senfeng-web.vercel.app/api/pos")
+        axios.get("/api/pos")
             .then((response) => {
                 if (response.data.stock.length > 0) {
                     let resultedData = [...response.data.stock]
@@ -124,7 +124,7 @@ export default function POS() {
     };
 
     const fetchDataCustomer = async () => {
-        axios.get("https://senfeng-web.vercel.app/api/pos/customer")
+        axios.get("/api/pos/customer")
             .then((response) => {
 
                 if (response.data.customers.length > 0) {
