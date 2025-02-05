@@ -1,17 +1,24 @@
-import { Checkbox as ChakraCheckbox } from '@chakra-ui/react'
-import * as React from 'react'
+"use client"
 
-export const Checkbox = React.forwardRef(function Checkbox(props, ref) {
-  const { icon, children, inputProps, rootRef, ...rest } = props
-  return (
-    <ChakraCheckbox.Root ref={rootRef} {...rest}>
-      <ChakraCheckbox.HiddenInput ref={ref} {...inputProps} />
-      <ChakraCheckbox.Control>
-        {icon || <ChakraCheckbox.Indicator />}
-      </ChakraCheckbox.Control>
-      {children != null && (
-        <ChakraCheckbox.Label>{children}</ChakraCheckbox.Label>
-      )}
-    </ChakraCheckbox.Root>
-  )
-})
+import * as React from "react"
+import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+import { Check } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+
+const Checkbox = React.forwardRef(({ className, ...props }, ref) => (
+  <CheckboxPrimitive.Root
+    ref={ref}
+    className={cn(
+      "peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+      className
+    )}
+    {...props}>
+    <CheckboxPrimitive.Indicator className={cn("flex items-center justify-center text-current")}>
+      <Check className="h-4 w-4" />
+    </CheckboxPrimitive.Indicator>
+  </CheckboxPrimitive.Root>
+))
+Checkbox.displayName = CheckboxPrimitive.Root.displayName
+
+export { Checkbox }

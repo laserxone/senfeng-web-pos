@@ -1,41 +1,34 @@
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import Providers from "./Providers";
-import { Suspense } from "react";
-import Loading from "@/components/Loading";
 
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { Toaster } from '@/components/ui/sonner';
+import { Lato } from 'next/font/google';
+import NextTopLoader from 'nextjs-toploader';
+import './globals.css';
+import Providers from '@/components/providers';
 
 export const metadata = {
-  title: "POS",
-  description: "SENFENG POS",
+  title: 'SENFENG',
+  description: 'SENFENG POS'
 };
 
-export default function RootLayout({ children }) {
+const lato = Lato({
+  subsets: ['latin'],
+  weight: ['400', '700', '900'],
+  display: 'swap'
+});
+
+export default async function RootLayout({
+  children
+}) {
+
   return (
-    <html suppressContentEditableWarning={true} suppressHydrationWarning={true}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-
+    <html lang='en' className={`${lato.className}`} suppressHydrationWarning>
+      <body className={'overflow-hidden'}>
+        <NextTopLoader showSpinner={false} />
         <Providers>
-          <Suspense fallback={<Loading />}>
-            {children}
-          </Suspense>
+          <Toaster />
+          {children}
         </Providers>
-
       </body>
     </html>
   );
 }
-
-

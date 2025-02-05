@@ -1,49 +1,35 @@
-'use client'
+"use client"
 
-import { Avatar as ChakraAvatar, Group } from '@chakra-ui/react'
-import * as React from 'react'
+import * as React from "react"
+import * as AvatarPrimitive from "@radix-ui/react-avatar"
 
-export const Avatar = React.forwardRef(function Avatar(props, ref) {
-  const { name, src, srcSet, loading, icon, fallback, children, ...rest } =
-    props
-  return (
-    <ChakraAvatar.Root ref={ref} {...rest}>
-      <AvatarFallback name={name} icon={icon}>
-        {fallback}
-      </AvatarFallback>
-      <ChakraAvatar.Image src={src} srcSet={srcSet} loading={loading} />
-      {children}
-    </ChakraAvatar.Root>
-  )
-})
+import { cn } from "@/lib/utils"
 
-const AvatarFallback = React.forwardRef(function AvatarFallback(props, ref) {
-  const { name, icon, children, ...rest } = props
-  return (
-    <ChakraAvatar.Fallback ref={ref} {...rest}>
-      {children}
-      {name != null && children == null && <>{getInitials(name)}</>}
-      {name == null && children == null && (
-        <ChakraAvatar.Icon asChild={!!icon}>{icon}</ChakraAvatar.Icon>
-      )}
-    </ChakraAvatar.Fallback>
-  )
-})
+const Avatar = React.forwardRef(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Root
+    ref={ref}
+    className={cn("relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full", className)}
+    {...props} />
+))
+Avatar.displayName = AvatarPrimitive.Root.displayName
 
-function getInitials(name) {
-  const names = name.trim().split(' ')
-  const firstName = names[0] != null ? names[0] : ''
-  const lastName = names.length > 1 ? names[names.length - 1] : ''
-  return firstName && lastName
-    ? `${firstName.charAt(0)}${lastName.charAt(0)}`
-    : firstName.charAt(0)
-}
+const AvatarImage = React.forwardRef(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Image
+    ref={ref}
+    className={cn("aspect-square h-full w-full", className)}
+    {...props} />
+))
+AvatarImage.displayName = AvatarPrimitive.Image.displayName
 
-export const AvatarGroup = React.forwardRef(function AvatarGroup(props, ref) {
-  const { size, variant, borderless, ...rest } = props
-  return (
-    <ChakraAvatar.PropsProvider value={{ size, variant, borderless }}>
-      <Group gap='0' spaceX='-3' ref={ref} {...rest} />
-    </ChakraAvatar.PropsProvider>
-  )
-})
+const AvatarFallback = React.forwardRef(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Fallback
+    ref={ref}
+    className={cn(
+      "flex h-full w-full items-center justify-center rounded-full bg-muted",
+      className
+    )}
+    {...props} />
+))
+AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+
+export { Avatar, AvatarImage, AvatarFallback }
