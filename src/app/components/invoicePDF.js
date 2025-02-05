@@ -24,7 +24,7 @@ const InvoicePDF = ({ companyName, name, phoneNumber, address, manager, nextInvo
           <FormField companyName={companyName} name={name} phoneNumber={phoneNumber} address={address} manager={manager} inv={nextInvoice} />
 
           {/* Invoice Table */}
-          <View style={{ marginBottom: 5, width: '100%' }}>
+          <View style={{ width: '100%' }}>
             <View style={{ width: '100%', display: 'flex', flexDirection: 'row', backgroundColor: '#0072BC', border: '1px solid #D1D5DB', }}>
               {['Sr.', 'Description', 'Quantity', 'Unit Price', 'Amount'].map((header, index) => (
                 <View key={index} style={[{ textAlign: 'left', display: 'flex', justifyContent: 'center', height: 25, paddingLeft: 5, width: index == 0 ? 30 : index == 1 ? 200 : 100, borderLeftWidth: index !== 0 && 1, borderLeftColor: "#D1D5DB" }]}>
@@ -68,12 +68,12 @@ const InvoicePDF = ({ companyName, name, phoneNumber, address, manager, nextInvo
           </View>
 
           {/* Total Amount */}
-          <View style={{ display: 'flex', width: '100%', alignItems: 'flex-end', justifyContent: 'flex-end', marginBottom: 5, marginTop: 5 }}>
-            <View style={{ width: '200px', display: 'flex', flexDirection: 'row' }}>
-              <View style={{ flex: 1, backgroundColor: '#0072BC', color: 'white', paddingLeft: 5, height: 35, display: 'flex', justifyContent: 'center', }}>
+          <View style={{ display: 'flex', width: '100%', alignItems: 'flex-end', justifyContent: 'flex-end', marginBottom: 5,  }}>
+            <View style={{ display: 'flex', flexDirection: 'row' }}>
+              <View style={{  backgroundColor: '#0072BC', color: 'white', paddingLeft: 5, height: 35, display: 'flex', justifyContent: 'center', width: 100,}}>
                 <Text style={{ fontSize: 12, fontFamily: "Helvetica-Bold" }}>Total Amount</Text>
               </View>
-              <View style={{ flex: 1, backgroundColor: '#0072BC', color: 'white', paddingLeft: 10, height: 35, display: 'flex', justifyContent: 'center', borderLeft: '1px solid', borderColor: 'white' }}>
+              <View style={{  backgroundColor: '#0072BC', color: 'white', paddingLeft: 10, height: 35, display: 'flex', justifyContent: 'center', borderLeftWidth: 1, borderColor: 'white', width: 110, }}>
                 <Text style={{ fontSize: 12, fontFamily: "Helvetica-Bold" }}>{totalAmount && new Intl.NumberFormat('en-US').format(totalAmount)}/-</Text>
               </View>
             </View>
@@ -120,7 +120,7 @@ const BankDetail = () => {
     <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center', marginTop: 2 }}>
       {list.map((item, index) => (
         <View key={index} style={{ display: 'flex', flexDirection: 'row', backgroundColor: (index + 1) % 2 === 0 && '#FFE4E1', borderWidth: 1, borderColor: '#cccccc', }}>
-          <View style={{ width: 150, height: 20, paddingLeft: 5, justifyContent: 'center', }}>
+          <View style={{ width: 170, height: 20, paddingLeft: 5, justifyContent: 'center', }}>
             <Text style={{ fontSize: 10 }}>{item.title}</Text>
           </View>
           <View style={{ width: 250, height: 20, paddingLeft: 5, justifyContent: 'center', borderLeftWidth: 1, borderColor: '#cccccc', }}>

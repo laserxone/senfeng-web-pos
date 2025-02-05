@@ -1,17 +1,14 @@
 "use client"
 import { useEffect, useState, useRef } from 'react';
-import { Box, Grid, Input, Button, Select, VStack, Text, Center, Flex, useBreakpointValue, Image, Badge, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Icon, Textarea, Wrap, WrapItem, Table, Thead, Th, Tr, Td, Tbody, IconButton } from '@chakra-ui/react';
+import { Box, Grid, Input, Button, Select, VStack, Text, Center, Flex, useBreakpointValue, Image, Badge, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Icon, Textarea, Wrap, WrapItem, Table, Thead, Th, Tr, Td, Tbody, IconButton, Spacer } from '@chakra-ui/react';
 import axios from 'axios';
 import TextInput from './TextInput';
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { FaGlobe, FaMinusCircle, FaPlus, FaPlusCircle, } from "react-icons/fa";
 import { FaPhone } from 'react-icons/fa6'
 import moment from 'moment';
 import Loading from '@/components/Loading';
 import InvoicePDF from './invoicePDF';
 import { pdf } from '@react-pdf/renderer';
-import { saveAs } from "file-saver";
 
 
 
@@ -39,21 +36,35 @@ export default function POS() {
     const [filteredCustomers, setFilteredCustomers] = useState([]);
     const [showList, setShowList] = useState(false)
     const [customerLoading, setCustomerLoading] = useState(false)
+    const [scale, setScale] = useState(1);
+
+    useEffect(() => {
+
+        const handleResize = () => {
+            const screenHeight = window.innerHeight;
+            const boxHeight = 1500;
+            const newScale = screenHeight / boxHeight;
+            setScale(newScale < 1 ? newScale : 1);
+        };
+
+        handleResize(); // Call on mount
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const generatePDF = async () => {
         handleUpdateStock()
-
         const blob = await pdf(<InvoicePDF companyName={companyName} name={name} phoneNumber={phoneNumber} address={address} manager={manager} nextInvoice={nextInvoice} invoiceItems={invoiceItems} totalAmount={totalAmount} />).toBlob();
         const url = URL.createObjectURL(blob);
         window.open(url, "_blank");
-        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        setTimeout(() => URL.revokeObjectURL(url), 600000);
     };
 
     async function handleUpdateStock() {
 
         const modified = stock.filter((item) => item?.modified)
 
-        axios.put("/api/pos/customer", {
+        axios.put("https://senfeng-web.vercel.app/api/pos/customer", {
             name: name,
             company: companyName,
             phone: phoneNumber,
@@ -63,7 +74,7 @@ export default function POS() {
         })
 
         if (modified.length > 0) {
-            axios.put("/api/pos", {
+            axios.put("https://senfeng-web.vercel.app/api/pos", {
                 entries: modified,
                 name: name,
                 company: companyName,
@@ -91,7 +102,7 @@ export default function POS() {
 
     const fetchData = async () => {
         clearAll()
-        axios.get("/api/pos")
+        axios.get("https://senfeng-web.vercel.app/api/pos")
             .then((response) => {
                 if (response.data.stock.length > 0) {
                     let resultedData = [...response.data.stock]
@@ -113,7 +124,7 @@ export default function POS() {
     };
 
     const fetchDataCustomer = async () => {
-        axios.get("/api/pos/customer")
+        axios.get("https://senfeng-web.vercel.app/api/pos/customer")
             .then((response) => {
 
                 if (response.data.customers.length > 0) {
@@ -183,8 +194,8 @@ export default function POS() {
                 index === i
                     ? {
                         ...item,
-                        [name]: name === "price" ? Number(value) : value,
-                        total: name === "price" ? Number(value) * item.qty : item.total,
+                        [name]: name === "price" ? value : value,
+                        total: name === "price" ? Number(value) * Number(item.qty) : item.total,
                     }
                     : item
             )
@@ -272,19 +283,21 @@ export default function POS() {
         setAddress(customer.address)
     };
 
+
+
     return (
         (loading || customerLoading) ?
             <Loading />
             :
-            <div style={{ width: 'fit-content' }}>
+            <Flex style={{ display: 'flex', flexDirection: 'column' }}>
                 <Box style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', padding: 10, backgroundColor: '#0072BC', color: 'white', }}>
-                    <Text style={{ fontSize: 30, fontWeight: '700' }}>SENFENG POS</Text>
+                    <Text style={{ fontSize: 20, fontWeight: '700' }}>SENFENG POS</Text>
                 </Box>
-                <Grid templateColumns={isMobile ? "1fr" : "1fr 1fr"} minH="100vh" px={4} gap={4}>
-
+                <Grid templateColumns={isMobile ? "1fr" : "1fr 1fr"} minH="100vh" px={4} gap={4} >
+                    {/*Left Side */}
                     <VStack
                         align="start"
-                        spacing={6}
+                        spacing={2}
                         p={6}
                         borderWidth={1}
                         borderRadius="lg"
@@ -364,14 +377,29 @@ export default function POS() {
                                                 <Input name="qty" readOnly value={item?.qty} borderRadius="md" borderColor="gray.300" />
                                             </Td>
                                             <Td p={1}>
-                                                <Input name="price" value={Number(item?.price)} onChange={(e) => handleChange(e, i)} borderRadius="md" borderColor="gray.300" />
+                                                <Input type='number' name="price" value={item?.price ? Number(item?.price) : ''}
+                                                    onKeyDown={(e) => {
+
+                                                        if (
+                                                            !/^\d$/.test(e.key) &&
+                                                            e.key !== 'Backspace' &&
+                                                            e.key !== 'Delete' &&
+                                                            e.key !== 'ArrowLeft' &&
+                                                            e.key !== 'ArrowRight' &&
+                                                            e.key !== 'Tab'
+                                                        ) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
+                                                    onChange={(e) => {
+                                                        handleChange(e, i)
+                                                    }} borderRadius="md" borderColor="gray.300" />
                                             </Td>
                                             <Td p={1}>
                                                 <div style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                                                     <Input readOnly name="total" value={item?.total} borderRadius="md" borderColor="gray.300" />
                                                     {item?.type === 'other'
                                                         &&
-
                                                         <Icon onClick={() => handleRemove(i)} as={FaMinusCircle} _hover={{ cursor: 'pointer', opacity: 0.7 }} color={'red'} ml={2} boxSize={'20px'} />
 
                                                     }
@@ -411,7 +439,7 @@ export default function POS() {
 
                         {/* Print Invoice Button */}
                         <Button
-                            // isDisabled={invoiceItems.length === 0}
+                            isDisabled={invoiceItems.length === 0}
                             w="100%"
                             colorScheme="green"
                             size="lg"
@@ -427,7 +455,25 @@ export default function POS() {
                         </Button>
                     </VStack>
 
-                    <Box display={'flex'} flexDir={'column'} alignItems={'center'} style={{ padding: '10px' }} bg={'#F1F7FFFF'} borderWidth={1} borderRadius="lg" shadow="md" w={'100%'} paddingBottom={20}>
+                    {/*Right Side */}
+
+                    <Box position={{base : 'relative', md :'fixed'}}
+                    width={{base : '100%', md :'60vw'}}
+                        top={10}
+                        right={0}
+                        overflowY="auto"
+                        marginTop={scale == 1 ? 0 : 5}
+                        transform={isMobile ? "scale(1)" : `scale(${scale})`}
+                        transformOrigin="top"
+                        display="flex"
+                        flexDir="column"
+                        alignItems="center"
+                        p="10px"
+                        bg="#F1F7FFFF"
+                        borderWidth={1}
+                        borderRadius="lg"
+                        shadow="md"
+                        >
                         <Badge m={5}>Invoice Preview</Badge>
                         <div ref={pdfRef} style={{ width: '100%', paddingLeft: 20, paddingRight: 20, paddingBottom: 20, }}>
                             {/* Header */}
@@ -517,7 +563,10 @@ export default function POS() {
                             <Footer />
                         </div>
                     </Box>
+                   
                 </Grid>
+
+               
 
                 <Modal isOpen={isOpen} onClose={onClose}>
                     <ModalOverlay />
@@ -622,7 +671,7 @@ export default function POS() {
                         </ModalFooter>
                     </ModalContent>
                 </Modal>
-            </div>
+            </Flex>
 
     );
 }
@@ -710,7 +759,7 @@ const Header = () => {
     return (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', }}>
             {/* <Text fontSize={60} color={'#0072BC'} fontWeight={'800'}>SENFENG</Text> */}
-            <Image src={"/logo.png"} alt="My Local Image" style={{ height: '70px', width: '350px' }} />
+            <Image src={"/logo.png"} alt="My Local Image" style={{ height: '50px', width: '250px' }} />
             <Box style={{ backgroundColor: '#0072BC', borderTopLeftRadius: 20, borderTopRightRadius: 20, marginRight: 70, width: '250px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} >
                 <Text style={{ fontSize: '30px', fontWeight: '600', color: 'white', }}>
                     INVOICE
