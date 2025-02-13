@@ -18,6 +18,30 @@ export async function GET(req, res) {
 
 }
 
+export async function POST(req, res) {
+
+
+
+    try {
+
+        const { name, price, qty, image, threshold, new_order } = await req.json()
+        if (!name || !price || !qty || !image || !threshold || !new_order) {
+            return NextResponse.json({ message: "All fields are required." }, { status: 400 });
+        }
+
+        const result = await pool.query(
+            "INSERT INTO inventory (name, price, qty, img, threshold, new_order) VALUES ($1, $2, $3, $4) RETURNING *",
+            [name, price, qty, image, threshold, new_order]
+        );
+
+        return NextResponse.json(result.rows, { status: 200 })
+    } catch (error) {
+        console.log(error)
+        return NextResponse.json({ message: "Processing error" }, { status: 500 })
+    }
+
+}
+
 
 export async function PUT(req, res) {
 
@@ -71,5 +95,7 @@ export async function PUT(req, res) {
     }
 
 }
+
+
 
 export const revalidate = 0
