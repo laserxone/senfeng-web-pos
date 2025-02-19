@@ -63,14 +63,16 @@ export async function PUT(req, res) {
             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
             [name, company, phone, address, manager, invoicenumber, JSON.stringify(fields)]
         );
-
-        for (const entry of entries) {
-            const { id, qty } = entry;
-            await pool.query(
-                "UPDATE inventory SET qty = $1 WHERE id = $2",
-                [qty, id]
-            );
+        if(entries.length > 0){
+            for (const entry of entries) {
+                const { id, qty } = entry;
+                await pool.query(
+                    "UPDATE inventory SET qty = $1 WHERE id = $2",
+                    [qty, id]
+                );
+            }
         }
+       
 
         const result = await pool.query("SELECT id FROM poscustomer WHERE phone = $1 LIMIT 1", [phone]);
         if (result.rows.length > 0) {

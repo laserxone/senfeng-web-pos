@@ -121,7 +121,7 @@ export default function POS() {
 
         const modified = stock.filter((item) => item?.modified)
 
-        if (modified.length > 0) {
+        
             axios.put("/api/pos", {
                 entries: modified,
                 name: name,
@@ -135,9 +135,7 @@ export default function POS() {
             }).finally(() => {
                 fetchData()
             })
-        } else {
-            fetchData()
-        }
+     
 
     }
 
