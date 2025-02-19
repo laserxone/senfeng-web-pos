@@ -121,8 +121,6 @@ export default function POS() {
 
         const modified = stock.filter((item) => item?.modified)
 
-
-
         if (modified.length > 0) {
             axios.put("/api/pos", {
                 entries: modified,
@@ -134,13 +132,11 @@ export default function POS() {
                 invoicenumber: nextInvoice,
                 fields: invoiceItems,
 
-            }).then(() => {
-
             }).finally(() => {
                 fetchData()
             })
         } else {
-            clearAll()
+            fetchData()
         }
 
     }
@@ -295,6 +291,7 @@ export default function POS() {
         setShowOther(false)
         setManager('')
         setSearch('')
+        setNextInvoice("")
     }
 
     const handlePhoneChange = (e) => {
