@@ -30,7 +30,7 @@ export async function POST(req, res) {
         }
 
         const result = await pool.query(
-            "INSERT INTO inventory (name, price, qty, img, threshold, new_order) VALUES ($1, $2, $3, $4) RETURNING *",
+            "INSERT INTO inventory (name, price, qty, img, threshold, new_order) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
             [name, price, qty, image, threshold, new_order]
         );
 
