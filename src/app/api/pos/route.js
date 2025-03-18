@@ -18,28 +18,61 @@ export async function GET(req, res) {
 
 }
 
-export async function POST(req, res) {
+// export async function POST(req, res) {
 
 
+
+//     try {
+
+//         const { name, price, qty, image, threshold, new_order } = await req.json()
+//         if (!name || !price || !qty || !image || !threshold || !new_order) {
+//             return NextResponse.json({ message: "All fields are required." }, { status: 400 });
+//         }
+
+//         const result = await pool.query(
+//             "INSERT INTO inventory (name, price, qty, img, threshold, new_order) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+//             [name, price, qty, image, threshold, new_order]
+//         );
+
+//         return NextResponse.json(result.rows, { status: 200 })
+//     } catch (error) {
+//         console.log(error)
+//         return NextResponse.json({ message: "Processing error" }, { status: 500 })
+//     }
+
+// }
+
+
+export async function POST(req) {
 
     try {
+        const data = await req.json();
 
-        const { name, price, qty, image, threshold, new_order } = await req.json()
-        if (!name || !price || !qty || !image || !threshold || !new_order) {
-            return NextResponse.json({ message: "All fields are required." }, { status: 400 });
+        if (!data || Object.keys(data).length === 0) {
+            return NextResponse.json({ error: "No data provided for insertion" }, { status: 400 });
         }
 
-        const result = await pool.query(
-            "INSERT INTO inventory (name, price, qty, img, threshold, new_order) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-            [name, price, qty, image, threshold, new_order]
-        );
+        const fields = Object.keys(data);
+        const values = Object.values(data);
+        const placeholders = fields.map((_, index) => `$${index + 1}`).join(", ");
 
-        return NextResponse.json(result.rows, { status: 200 })
+        const query = `
+        INSERT INTO inventory (${fields.join(", ")})
+        VALUES (${placeholders})
+        RETURNING *
+    `;
+
+       const {rows} =  await pool.query(query, values);
+
+        console.log("data inserted successfully");
+        return NextResponse.json({
+            message: "Data added successfully",
+        }, { status: 200 });
+
     } catch (error) {
-        console.log(error)
-        return NextResponse.json({ message: "Processing error" }, { status: 500 })
+        console.error('Error inserting data: ', error);
+        return NextResponse.json({ message: 'Error adding customer' }, { status: 500 })
     }
-
 }
 
 

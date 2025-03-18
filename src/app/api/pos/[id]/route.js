@@ -2,32 +2,47 @@
 import pool from '@/config/db';
 import { NextResponse } from 'next/server';
 
-export async function PUT(req, { params }) {
-    const { id } = await params
 
 
+export async function PUT(req, {params}) {
     try {
-        const { name, price, qty, image, threshold, new_order } = await req.json()
-
-        if (!name || !price || !qty || !image || !id || !threshold || !new_order) {
-            return NextResponse.json({ message: "All fields are required." }, { status: 400 });
+        const data = await req.json();
+        const {...updates } = data;
+        const {id} = await params
+        
+        if (!id) {
+            return NextResponse.json({ error: "ID is required" }, { status: 400 });
         }
-
-        // Update the fields in the inventory table where id matches
-        const result = await pool.query(
-            "UPDATE inventory SET name = $1, price = $2, qty = $3, img = $4, threshold=$5, new_order=$6 WHERE id = $7 RETURNING *",
-            [name, price, qty, image, threshold, new_order, id]
-        );
-
-        if (result.rowCount === 0) {
-            return NextResponse.json({ message: "Inventory item not found." }, { status: 404 });
+  
+        const fields = [];
+        const values = [];
+  
+        Object.entries(updates).forEach(([key, value], index) => {
+            if (value !== undefined) {
+                fields.push(`${key} = $${index + 1}`);
+                values.push(value);
+            }
+        });
+  
+        if (fields.length === 0) {
+            return NextResponse.json({ error: "No valid data provided for update" }, { status: 400 });
         }
-
-        return NextResponse.json(result.rows[0], { status: 200 })
+  
+        values.push(id);
+        const query = `
+            UPDATE inventory 
+            SET ${fields.join(", ")}
+            WHERE id = $${values.length}
+        `;
+  
+        await pool.query(query, values);
+  
+        console.log("data updated successfully");
+        return NextResponse.json({ message: "Updated successfully" }, { status: 200 });
     } catch (error) {
-        console.log(error)
-        return NextResponse.json({ message: "Processing error" }, { status: 500 })
+        console.error("Error updating data:", error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
-}
+  }
 
 export const revalidate = 0

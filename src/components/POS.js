@@ -1036,11 +1036,11 @@ const RenderStockItems = ({ item, index, invoiceItems, handleDecrease, handleInc
             const result = await uploadFiles(localImage, imgRef)
             axios.put(`/api/pos/${id}`, {
                 name: localName,
-                price: localPrice,
-                qty: localQty,
-                image: result,
-                threshold: threshold,
-                new_order: newOrder
+                price: Number(localPrice),
+                qty: Number(localQty),
+                img: result,
+                threshold: threshold ? Number(threshold) : "",
+                new_order: newOrder ? Number(newOrder) : ""
             })
                 .then((response) => {
                     console.log(response.data)
@@ -1242,20 +1242,20 @@ const AddNewProduct = ({ visible, onClose, onRefresh }) => {
             const result = await uploadFiles(image)
             axios.post("/api/pos", {
                 name: name,
-                price: price,
-                qty: qty,
-                image: result,
-                threshold: threshold,
-                new_order: newOrder
+                price: Number(price),
+                qty: Number(qty),
+                img: result,
+                threshold: threshold ? Number(threshold) : "",
+                new_order: newOrder ? Number(newOrder) : ""
             })
                 .then((response) => {
                     console.log(response.data)
+                    
+                    onRefresh()
                 }).catch((e) => {
                     console.log(e)
-                }).finally(() => {
+                }).finally(()=>{
                     setLoading(false)
-                    onRefresh()
-
                 })
         } catch (error) {
             console.log(error)
