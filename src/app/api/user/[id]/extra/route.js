@@ -3,16 +3,18 @@ import { NextResponse } from "next/server";
 
 
 
-export async function GET(req, {params}) {
+export async function GET(req, { params }) {
     try {
-       const {id} = await params
-       const userId = id
+        const { id } = await params
+        const userId = id
 
         if (!userId) {
             return NextResponse.json({ error: "User ID is required" }, { status: 400 });
         }
 
-        // Fetch top_followup entries (Latest entry per customer)
+        const searchParams = req.nextUrl.searchParams
+        const employee = searchParams.get('employee')
+
         const topFollowupQuery = `
             SELECT DISTINCT ON (f.customer_id) f.*, c.*
             FROM feedback f
@@ -21,13 +23,25 @@ export async function GET(req, {params}) {
             ORDER BY f.customer_id, f.created_at ASC;
         `;
         const topFollowup = await pool.query(topFollowupQuery, [userId]);
+        let recentCustomerQuery
+        let recentCustomer
 
-        // Fetch recent customers
-        const recentCustomerQuery = `
+        if (employee) {
+            recentCustomerQuery = `
             SELECT * FROM customer 
             WHERE ownership = $1 AND member = false;
         `;
-        const recentCustomer = await pool.query(recentCustomerQuery, [userId]);
+        recentCustomer = await pool.query(recentCustomerQuery, [userId]);
+        } else {
+            recentCustomerQuery = `
+            SELECT * FROM customer 
+            WHERE member = false;
+        `;
+        recentCustomer = await pool.query(recentCustomerQuery);
+        }
+        // Fetch recent customers
+
+        
 
         // Fetch weekly follow-ups (Latest entry per customer)
         const weeklyFollowupQuery = `

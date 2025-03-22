@@ -123,7 +123,7 @@ export const employeeNavItems = [
   },
  
   {
-    title: 'Members',
+    title: 'All Customers',
     url: '/customer',
     icon: 'customer',
     isActive: false,

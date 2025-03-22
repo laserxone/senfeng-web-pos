@@ -15,6 +15,7 @@ export async function GET(req, { params }) {
 
     const machine = machineResult.rows[0];
     const customerId = machine.customer_id;
+    const sellBy = machine.sell_by; // Get sell_by ID
 
     // 2. Get customer details
     const customerQuery = `SELECT * FROM customer WHERE id = $1`;
@@ -26,18 +27,30 @@ export async function GET(req, { params }) {
 
     const customer = customerResult.rows[0];
 
-    // 3. Get all payments related to this machine, ordered by transaction_date
+    // 3. Get the seller's name from users table
+    let sellByName = null;
+    if (sellBy) {
+      const sellerQuery = `SELECT name FROM users WHERE id = $1`;
+      const sellerResult = await pool.query(sellerQuery, [sellBy]);
+
+      if (sellerResult.rows.length > 0) {
+        sellByName = sellerResult.rows[0].name;
+      }
+    }
+
+    // 4. Get all payments related to this machine, ordered by transaction_date
     const paymentsQuery = `SELECT * FROM payment WHERE machine_id = $1 ORDER BY transaction_date ASC`;
     const paymentsResult = await pool.query(paymentsQuery, [id]);
 
-    // 4. Add track number to each payment
+    // 5. Add track number to each payment
     const payments = paymentsResult.rows.map((payment, index) => ({
       ...payment,
       track: index + 1, // Starts from 1
     }));
 
-    // 5. Attach payments to the machine object
+    // 6. Attach payments and sell_by_name to the machine object
     machine.payments = payments;
+    machine.sell_by_name = sellByName; // Attach seller's name
 
     return NextResponse.json({ customer, machine }, { status: 200 });
 
@@ -48,44 +61,44 @@ export async function GET(req, { params }) {
 }
 
 
-export async function PUT(req, {params}) {
+export async function PUT(req, { params }) {
   try {
-      const data = await req.json();
-      const {...updates } = data;
-      const {id} = await params
-      
-      if (!id) {
-          return NextResponse.json({ error: "ID is required" }, { status: 400 });
+    const data = await req.json();
+    const { ...updates } = data;
+    const { id } = await params
+
+    if (!id) {
+      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+    }
+
+    const fields = [];
+    const values = [];
+
+    Object.entries(updates).forEach(([key, value], index) => {
+      if (value !== undefined) {
+        fields.push(`${key} = $${index + 1}`);
+        values.push(value);
       }
+    });
 
-      const fields = [];
-      const values = [];
+    if (fields.length === 0) {
+      return NextResponse.json({ error: "No valid data provided for update" }, { status: 400 });
+    }
 
-      Object.entries(updates).forEach(([key, value], index) => {
-          if (value !== undefined) {
-              fields.push(`${key} = $${index + 1}`);
-              values.push(value);
-          }
-      });
-
-      if (fields.length === 0) {
-          return NextResponse.json({ error: "No valid data provided for update" }, { status: 400 });
-      }
-
-      values.push(id);
-      const query = `
+    values.push(id);
+    const query = `
           UPDATE sale 
           SET ${fields.join(", ")}
           WHERE id = $${values.length}
       `;
 
-      await pool.query(query, values);
+    await pool.query(query, values);
 
-      console.log("data updated successfully");
-      return NextResponse.json({ message: "Updated successfully" }, { status: 200 });
+    console.log("data updated successfully");
+    return NextResponse.json({ message: "Updated successfully" }, { status: 200 });
   } catch (error) {
-      console.error("Error updating data:", error);
-      return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Error updating data:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
