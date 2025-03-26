@@ -87,20 +87,41 @@ export async function POST(req) {
 }
 
 
-export async function GET(req) {
+export async function GET(req, { params }) {
+
+  
+    const searchParams = req.nextUrl.searchParams
+    const start_date = searchParams.get('start_date')
+    const end_date = searchParams.get('end_date')
+    const user = searchParams.get('user')
 
     try {
-        const query = `
-    SELECT 
-    r.*, 
-    u.id AS user_id, 
-    u.name AS submitted_by_name
-FROM reimbursement r
-INNER JOIN users u ON r.submitted_by = u.id ORDER BY date DESC;
-    `;
+        let query = `
+        SELECT 
+          r.*, 
+          u.id AS user_id, 
+          u.name AS submitted_by_name
+        FROM reimbursement r
+        INNER JOIN users u ON r.submitted_by = u.id
+      `;
+    
+      const queryParams = [];
+    
+        if (start_date && end_date) {
+            query += ` WHERE r.date BETWEEN $1 AND $2`;
+            queryParams.push(start_date, end_date);
+        }
 
-        const result = await pool.query(query);
-        return NextResponse.json(result.rows, { status: 200 })
+        if(user){
+            query += ` AND submitted_by = $3`;
+            queryParams.push(user);
+        }
+
+    
+      query += ` ORDER BY r.date DESC;`;
+    
+      const result = await pool.query(query, queryParams);
+      return NextResponse.json(result.rows, { status: 200 });
 
     } catch (error) {
         console.error('Error inserting data: ', error);

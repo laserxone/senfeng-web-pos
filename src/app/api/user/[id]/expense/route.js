@@ -18,13 +18,12 @@ export async function GET(req, { params }) {
     u.name AS submitted_by_name
 FROM branchexpenses r
 INNER JOIN users u ON r.submitted_by = u.id
-WHERE u.id = $1
     `;
 
         const queryParams = [id];
 
         if (start_date && end_date) {
-            query += ` AND r.date BETWEEN $2 AND $3`;
+            query += ` WHERE r.date BETWEEN $2 AND $3`;
             queryParams.push(start_date, end_date);
         }
         query += ` ORDER BY r.date DESC;`;
