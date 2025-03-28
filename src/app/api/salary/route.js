@@ -13,7 +13,7 @@ export async function GET(req, { params }) {
     const end_date = searchParams.get('end')
     const user = searchParams.get('user')
 
-    const salaryMonth = moment(start_date).startOf("month");
+    const salaryMonth = moment(start_date).startOf("month").toDate();
     const salaryQuery = `
         SELECT * FROM salaries WHERE user_id = $1 AND salary_month = $2
     `;

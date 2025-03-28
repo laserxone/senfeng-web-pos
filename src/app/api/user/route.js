@@ -1,73 +1,130 @@
 import pool from "@/config/db";
+import admin from "@/lib/firebaseAdmin";
 import { NextResponse } from "next/server"
 
 
-export async function POST(req) {
-    const { data } = await req.json()
-    const client = await pool.connect();
+// export async function POST(req) {
+//     const { data } = await req.json()
+//     const client = await pool.connect();
 
-    try {
-      for (const item of data) {
-        const query = `
-          INSERT INTO users (
-            basic_salary,
-            branch_expenses_assigned,
-            branch_expenses_delete_access,
-            branch_expenses_write_access,
-            designation,
-            dp,
-            email,
-            inventory_assigned,
-            monthly_target,
-            name,
-            token,
-            total_salary,
-            old_ref
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-          RETURNING *;
-        `;
-  
-        const values = [
-          Number(item.basicSalary || 0),
-          item.branchExpensesAssigned || false,
-          item.branchExpensesDeleteAccess || false,
-          item.branchExpensesWriteAccess || false,
-          item.designation,
-          item.dp || "",
-          item.email,
-          item.inventoryAssigned || false,
-          Number(item.monthlyTarget),
-          item.name,
-          item.token || null, // Token is optional, set null if not present
-          Number(item.totalSalary || 0),
-          item.id, // Old ref
-        ];
-  
-        const res = await client.query(query, values);
-        console.log("Inserted:", res.rows[0]);
-      }
-    } catch (error) {
-      console.error("Error inserting data:", error);
-    } finally {
-      client.release(); // Release client back to pool
+//     try {
+//       for (const item of data) {
+//         const query = `
+//           INSERT INTO users (
+//             basic_salary,
+//             branch_expenses_assigned,
+//             branch_expenses_delete_access,
+//             branch_expenses_write_access,
+//             designation,
+//             dp,
+//             email,
+//             inventory_assigned,
+//             monthly_target,
+//             name,
+//             token,
+//             total_salary,
+//             old_ref
+//           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+//           RETURNING *;
+//         `;
+
+//         const values = [
+//           Number(item.basicSalary || 0),
+//           item.branchExpensesAssigned || false,
+//           item.branchExpensesDeleteAccess || false,
+//           item.branchExpensesWriteAccess || false,
+//           item.designation,
+//           item.dp || "",
+//           item.email,
+//           item.inventoryAssigned || false,
+//           Number(item.monthlyTarget),
+//           item.name,
+//           item.token || null, // Token is optional, set null if not present
+//           Number(item.totalSalary || 0),
+//           item.id, // Old ref
+//         ];
+
+//         const res = await client.query(query, values);
+//         console.log("Inserted:", res.rows[0]);
+//       }
+//     } catch (error) {
+//       console.error("Error inserting data:", error);
+//     } finally {
+//       client.release(); // Release client back to pool
+//     }
+
+//     return NextResponse.json({message : 'done'}, {status : 200})
+// }
+
+
+export async function POST(req) {
+
+  try {
+    const data = await req.json();
+
+    if (!data || Object.keys(data).length === 0) {
+      return NextResponse.json({ error: "No data provided for insertion" }, { status: 400 });
     }
 
-    return NextResponse.json({message : 'done'}, {status : 200})
+    const fields = Object.keys(data);
+    const values = Object.values(data);
+    const placeholders = fields.map((_, index) => `$${index + 1}`).join(", ");
+
+    const query = `
+      INSERT INTO users (${fields.join(", ")})
+      VALUES (${placeholders})
+      RETURNING *
+  `;
+
+    const { rows } = await pool.query(query, values);
+    const newUser = rows[0];
+
+    const { name, email, designation } = data
+
+    const db = admin.firestore();
+
+    await db.collection("AllowedUsers").add({
+      name: name,
+      email: email,
+      designation: designation,
+      company: "Senfeng",
+      dp: "",
+    }).then(() => {
+      console.log("user added in firebase")
+    })
+
+    return NextResponse.json(newUser, { status: 200 });
+
+  } catch (error) {
+    console.error('Error inserting data: ', error);
+    return NextResponse.json({ message: 'Error adding user' }, { status: 500 })
+  }
 }
 
 export async function GET(req) {
 
-  try {
-      const query = `
-    SELECT * FROM users ORDER BY name ASC
-  `;
+  const searchParams = req.nextUrl.searchParams
+  const user = searchParams.get('user')
 
-      const result = await pool.query(query);
-      return NextResponse.json(result.rows, { status: 200 })
+
+  try {
+    let query = `SELECT * FROM users`;
+
+    let queryParams = []
+
+    if (user) {
+      query += ` WHERE id = $1`
+      queryParams.push(user)
+    }
+
+    query += ` ORDER BY name ASC;`;
+
+    const result = await pool.query(query, queryParams);
+    return NextResponse.json(result.rows, { status: 200 })
 
   } catch (error) {
-      console.error('Error inserting data: ', error);
-      return NextResponse.json({message : error.message || "Something went wrong"}, { status: 500 })
+    console.error('Error inserting data: ', error);
+    return NextResponse.json({ message: error.message || "Something went wrong" }, { status: 500 })
   }
 
 }
