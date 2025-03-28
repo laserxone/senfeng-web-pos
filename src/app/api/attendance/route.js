@@ -87,6 +87,8 @@ export async function GET(req) {
     const end_date = searchParams.get('end_date')
     const user = searchParams.get("user")
 
+    console.log(start_date, end_date, user)
+
 
     try {
         let query = `
@@ -117,20 +119,27 @@ export async function GET(req) {
 
         const db = admin.firestore();
 
+        console.log(1)
+
         const processedStartDate = moment(start_date).startOf("day")
         const processedEndDate = moment(end_date).endOf("day")
-
+        console.log(processedEndDate.valueOf(), processedStartDate.valueOf())
+        console.log(2)
         let snapshot
         if (!user) {
+            console.log(3)
             snapshot = await db.collection("EmployeeAttendance")
                 .where("timeIn", ">=", processedStartDate.valueOf())
                 .where("timeIn", "<=", processedEndDate.valueOf())
                 .get();
 
+                console.log(4)
+
         } else {
             const userResult = await pool.query(`SELECT email FROM users WHERE id = $1`, [user])
             if (userResult.rows.length > 0) {
                 const userEmail = userResult.rows[0].email
+                console.log(userEmail)
                 snapshot = await db.collection("EmployeeAttendance")
                     .where("timeIn", ">=", processedStartDate.valueOf())
                     .where("timeIn", "<=", processedEndDate.valueOf())
@@ -139,8 +148,10 @@ export async function GET(req) {
             }
         }
 
-        const attendanceRecords = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        console.log(5)
 
+        const attendanceRecords = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        console.log(6)
         const preparedData = attendanceRecords.map((item) => {
             return {
                 time_in: item?.timeIn ? moment(item?.timeIn).utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]") : null,
@@ -154,6 +165,8 @@ export async function GET(req) {
                 user_email: item?.attendanceBy || null
             }
         })
+
+        console.log(preparedData)
 
         const userQuery = await pool.query(`SELECT name, email FROM users`)
 
@@ -176,7 +189,7 @@ export async function GET(req) {
         const seenDates = new Set();
 
         finalData.forEach(item => {
-            const formattedDate = moment(item.time_in).format("DD-MM-YYYY");
+            const formattedDate = moment(item.time_in).format("YYYY-MM-DD");
             if (!seenDates.has(formattedDate)) {
                 seenDates.add(formattedDate);
                 uniqueData.push(item);
@@ -189,8 +202,8 @@ export async function GET(req) {
 
 
     } catch (error) {
-        console.error('Error inserting data: ', error);
-        return NextResponse.json({ message: error.message || "Something went wrong" }, { status: 500 })
+        console.log('Error inserting data: ', error);
+        return NextResponse.json({ message: error?.message || "Something went wrong" }, { status: 500 })
     }
 
 
