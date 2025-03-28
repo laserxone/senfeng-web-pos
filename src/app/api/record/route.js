@@ -1,8 +1,6 @@
 
 
 import pool from "@/config/db";
-import admin from "@/lib/firebaseAdmin";
-import moment from "moment";
 import { NextResponse } from "next/server"
 
 export async function GET(req, { params }) {
