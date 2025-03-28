@@ -1,6 +1,7 @@
 
 import pool from "@/config/db";
 import { db, storage } from "@/config/firebase";
+import admin from "@/lib/firebaseAdmin";
 import { UploadImage } from "@/lib/uploadFunction";
 import { getDownloadURL, getStorage, ref, uploadBytes, uploadString } from "firebase/storage";
 import moment from "moment";
@@ -13,7 +14,9 @@ export async function GET(req, { params }) {
     const start_date = searchParams.get('start_date')
     const end_date = searchParams.get('end_date')
 
-    console.log(start_date, end_date, id)
+    if (!id) {
+        return NextResponse.json({ message: "Parameters missing" }, { status: 404 })
+    }
 
     try {
         let query = `
@@ -35,7 +38,61 @@ WHERE u.id = $1
 
         query += ` ORDER BY t.time_in DESC;`;
         const result = await pool.query(query, queryParams);
-        return NextResponse.json(result.rows, { status: 200 });
+
+        const db = admin.firestore();
+
+        const processedStartDate = moment(start_date).startOf("day")
+        const processedEndDate = moment(end_date).endOf("day")
+
+
+        let snapshot
+        if (id) {
+            const userResult = await pool.query(`SELECT email FROM users WHERE id = $1`, [id])
+            if (userResult.rows.length > 0) {
+                const userEmail = userResult.rows[0].email
+                snapshot = await db.collection("EmployeeAttendance")
+                    .where("timeIn", ">=", processedStartDate.valueOf())
+                    .where("timeIn", "<=", processedEndDate.valueOf())
+                    .where("attendanceBy", '==', userEmail)
+                    .get();
+            }
+
+        }
+
+        const attendanceRecords = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        const preparedData = attendanceRecords.map((item) => {
+            return {
+                time_in: item?.timeIn ? moment(item?.timeIn).utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]") : null,
+                note_time_in: item?.noteTimeIn || null,
+                location_time_in: item?.locationTimeIn || [],
+                image_time_in: item?.imageTimeIn || null,
+                time_out: item?.timeOut ? moment(item?.timeOut).utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]") : null,
+                note_time_out: item?.noteTimeOut || null,
+                location_time_out: item?.locationTimeOut || [],
+                image_time_out: item?.imageTimeOut || null,
+                user_email: item?.attendanceBy || null
+            }
+        })
+
+        const finalData = [...result.rows, ...preparedData]
+
+        finalData.sort((a, b) => new Date(b.time_in) - new Date(a.time_in))
+
+        const uniqueData = [];
+        const seenDates = new Set();
+
+        finalData.forEach(item => {
+            const formattedDate = moment(item.time_in).format("DD-MM-YYYY");
+            if (!seenDates.has(formattedDate)) {
+                seenDates.add(formattedDate);
+                uniqueData.push(item);
+            }
+        });
+
+
+        return NextResponse.json(uniqueData, { status: 200 })
+
 
     } catch (error) {
         console.error('Error: ', error);
@@ -121,12 +178,12 @@ export async function POST(req, { params }) {
 async function UploadImageForMobile(image, fileName) {
     return new Promise(async (resolve, reject) => {
         try {
-          
+
             const storageRef = ref(storage, fileName);
 
             await uploadString(storageRef, image, "base64", { contentType: "image/png" });
 
-           
+
             const imageUrl = await getDownloadURL(storageRef); // Get image URL
             resolve(imageUrl);
         } catch (error) {

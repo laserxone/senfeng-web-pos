@@ -89,18 +89,24 @@ export async function GET(req) {
         // Query to get the recent 6 sales with user details
         const recentSalesQuery = `
             SELECT 
-                s.price,
-                s.created_at,
-                u.name,
-                u.email,
-                u.dp
-            FROM 
-                sale s
-            JOIN 
-                users u ON u.id = s.sell_by
-            ORDER BY 
-                s.created_at DESC
-            LIMIT 5
+    s.price,
+    s.created_at,
+    s.contract_date,
+    u.name AS seller_name,
+    u.email AS seller_email,
+    u.dp AS seller_dp,
+    c.id AS customer_id,
+    c.name AS customer_name,
+    c.owner AS customer_owner
+FROM 
+    sale s
+JOIN 
+    users u ON u.id = s.sell_by
+JOIN 
+    customer c ON c.id = s.customer_id
+ORDER BY 
+    GREATEST(s.created_at, s.contract_date) DESC
+LIMIT 5;
         `;
 
         const industryCount = `
@@ -187,9 +193,12 @@ const feedbackQuery = `
             recent_sales: recentSalesResult.rows.map(sale => ({
                 price: sale.price,
                 created_at: sale.created_at,
-                seller_name: sale.name,
-                seller_email: sale.email,
-                seller_dp: sale.dp
+                seller_name: sale.seller_name,
+                seller_email: sale.seller_email,
+                seller_dp: sale.seller_dp,
+                customer_id : sale.customer_id,
+                customer_name : sale.customer_name,
+                customer_owner : sale.customer_owner
             })),
             industry_count : industryCountResult.rows,
             machines_sold_last_3_months: dateArray,
