@@ -13,8 +13,9 @@ export async function GET(req, { params }) {
                 u.name AS user_name 
             FROM salaries s
             INNER JOIN users u ON s.user_id = u.id
+            WHERE issued = $1
             ORDER BY s.year DESC, s.month DESC;
-        `);
+        `, [true]);
 
         return NextResponse.json(salaries.rows, { status: 200 });
     } catch (error) {
