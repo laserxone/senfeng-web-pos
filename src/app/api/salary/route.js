@@ -12,12 +12,12 @@ export async function GET(req, { params }) {
     const start_date = searchParams.get('start')
     const end_date = searchParams.get('end')
     const user = searchParams.get('user')
-
-    const salaryMonth = moment(start_date).startOf("month").toDate();
+    const month = searchParams.get('month')
+    const year = searchParams.get('year')
     const salaryQuery = `
-        SELECT * FROM salaries WHERE user_id = $1 AND salary_month = $2
+        SELECT * FROM salaries WHERE user_id = $1 AND month = $2 AND year = $3
     `;
-    const salaryResult = await pool.query(salaryQuery, [user, salaryMonth]);
+    const salaryResult = await pool.query(salaryQuery, [user, month, year]);
 
 
     try {
