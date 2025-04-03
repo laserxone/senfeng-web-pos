@@ -101,6 +101,14 @@ export const ownerNavItems = [
     isActive: false,
     items: [] // No child items
   },
+  {
+    title: 'DMS',
+    url: '/dms',
+    icon: 'dms',
+    shortcut: ['z', 'z'],
+    isActive: false,
+    items: [] // No child items
+  },
   
 ];
 
@@ -131,7 +139,14 @@ export const employeeNavItems = [
     shortcut: ['m', 'm'],
     items: []
   },
-
+  {
+    title: 'DMS',
+    url: '/dms',
+    icon: 'dms',
+    shortcut: ['z', 'z'],
+    isActive: false,
+    items: [] // No child items
+  },
   
 ];
 
