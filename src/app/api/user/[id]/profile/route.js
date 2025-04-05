@@ -3,15 +3,15 @@ import { NextResponse } from "next/server"
 
 export async function POST(req, { params }) {
     try {
-        const { dp, cnic, education, police, name } = await req.json();
+        const { dp, cnic, education, police, name, resume, number, kin_number } = await req.json();
         const { id } = await params;
 
 
 
         const insertQuery = `
-            UPDATE users SET dp = $1, cnic = $2, education = $3, police = $4, name = $5 WHERE id = $6;
+            UPDATE users SET dp = $1, cnic = $2, education = $3, police = $4, name = $5, resume = $6, number = $7, kin_number = $8 WHERE id = $9;
         `;
-        await pool.query(insertQuery, [dp, cnic, education, police, name, id]);
+        await pool.query(insertQuery, [dp, cnic, education, police, name, resume, number, kin_number, id]);
 
         return NextResponse.json({
             message: "Profile updated",
