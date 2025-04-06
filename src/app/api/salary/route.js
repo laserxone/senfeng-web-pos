@@ -81,11 +81,17 @@ export async function GET(req, { params }) {
 
         finalData.sort((a, b) => new Date(a.time_in) - new Date(b.time_in))
 
+        const commissionQuery = `SELECT * FROM commissions WHERE user_id = $1 AND approval_date BETWEEN $2 AND $3 `;
+        const commissionResult = await pool.query(commissionQuery, [user, start_date, end_date]);
+
+       
+
         return NextResponse.json({
             reimbursement: reimbursement.rows,
             attendance: finalData,
             user: userQuery.rows[0],
-            salary: salaryResult.rows.length > 0 ? salaryResult.rows[0] : null
+            salary: salaryResult.rows.length > 0 ? salaryResult.rows[0] : null,
+            commission: commissionResult.rows || []
         }, { status: 200 });
 
     } catch (error) {

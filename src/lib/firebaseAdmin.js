@@ -6,7 +6,8 @@ const serviceAccount = JSON.parse(Buffer.from(serviceAccountBase64, 'base64').to
 
 if (!admin.apps.length) {
     admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+        credential: admin.credential.cert(serviceAccount),
+        storageBucket : "adcrm-a0bf3.appspot.com"
     });
 }
 

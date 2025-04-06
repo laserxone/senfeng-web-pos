@@ -1,4 +1,6 @@
 import pool from "@/config/db";
+import admin from "@/lib/firebaseAdmin";
+import { storage } from "firebase-admin";
 import { NextResponse } from "next/server";
 
 export async function GET(req, { params }) {
@@ -116,12 +118,47 @@ export async function DELETE(req, { params }) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
     await pool.query(`DELETE FROM feedback WHERE customer_id = $1`, [id]);
-    await pool.query(`DELETE FROM sale WHERE customer_id = $1`, [id]);
+
+
+    const saleResult = await pool.query(`SELECT * FROM sale WHERE customer_id = $1`, [id]);
+
+    if (saleResult.rows.length > 0) {
+      const sale = saleResult.rows[0];
+
+      // Step 2: Get machine_id (from sale)
+      const machineId = sale.id;
+
+      // Step 3: Check if there are payments associated with the machine_id
+      const paymentResult = await pool.query(`SELECT * FROM payment WHERE machine_id = $1`, [machineId]);
+
+      if (paymentResult.rows.length > 0) {
+        // Step 4: Iterate over each payment and check the image field
+        for (const payment of paymentResult.rows) {
+          const image = payment.image;
+
+          // If image does not contain .http (indicating it's a Firebase reference)
+          if (!image.includes('.http')) {
+           console.log(image)
+            const bucket = admin.storage().bucket()
+            await bucket.file(image).delete()
+            console.log("image deleted")
+          }
+        }
+
+        // Step 5: Delete all payments associated with the machine_id
+        await pool.query(`DELETE FROM payment WHERE machine_id = $1`, [machineId]);
+      }
+
+      // Step 6: Delete the sale record
+      await pool.query(`DELETE FROM sale WHERE customer_id = $1`, [id]);
+    }
+
     await pool.query(`DELETE FROM customer WHERE id = $1`, [id]);
 
 
     return NextResponse.json({ message: "Customer Deleted" }, { status: 200 });
   } catch (error) {
+    console.log(error)
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }

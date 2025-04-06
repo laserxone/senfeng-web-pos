@@ -53,6 +53,12 @@ export const ownerNavItems = [
         shortcut: ['l', 'l'],
         url: '/reimbursement',
         icon: 'login'
+      },
+      {
+        title: 'Commission',
+        shortcut: ['l', 'l'],
+        url: '/commission',
+        icon: 'commission'
       }
     ]
   },
@@ -144,6 +150,14 @@ export const employeeNavItems = [
     url: '/dms',
     icon: 'dms',
     shortcut: ['z', 'z'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Commission',
+    url: '/commission',
+    icon: 'commission',
+    shortcut: ['s', 's'],
     isActive: false,
     items: [] // No child items
   },
