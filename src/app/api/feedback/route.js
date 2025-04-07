@@ -56,9 +56,13 @@ export async function GET(req) {
 SELECT 
     f.*, 
     c.id AS customer_id, 
-    c.name AS customer_name
+    c.name AS customer_name,
+    c.owner AS customer_owner,
+    u.id AS user_id,
+    u.name AS user_name
 FROM feedback f
 LEFT JOIN customer c ON f.customer_id = c.id
+LEFT JOIN users u ON f.user_id = u.id
 ORDER BY created_at DESC;
 
     `;

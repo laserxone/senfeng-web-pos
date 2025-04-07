@@ -15,51 +15,55 @@ export async function GET(req, { params }) {
             return NextResponse.json({ message: "User not found" }, { status: 404 })
         }
         let nav_items = []
-        if (result.rows[0].designation == 'Owner'){
+        if (result.rows[0].full_access) {
             nav_items = [...ownerNavItems]
-            base_route = "owner"
+            base_route = "superadmin"
         }
-        else if (result.rows[0].designation == 'Engineer'){
+        else if (result.rows[0].designation == 'Owner') {
+            nav_items = [...ownerNavItems]
+            base_route = "fullaccess"
+        }
+        else if (result.rows[0].designation == 'Engineer') {
             base_route = 'engineer'
             nav_items = [...employeeNavItems]
-            if(result.rows[0].branch_expenses_assigned)
+            if (result.rows[0].branch_expenses_assigned)
                 nav_items.push(branchNavItem)
-            if(result.rows[0].inventory_assigned)
+            if (result.rows[0].inventory_assigned)
                 nav_items.push(InventoryNavItem)
         }
-        else if (result.rows[0].designation == 'Sales'){
+        else if (result.rows[0].designation == 'Sales') {
             base_route = 'sales'
             nav_items = [...employeeNavItems]
-            if(result.rows[0].branch_expenses_assigned)
+            if (result.rows[0].branch_expenses_assigned)
                 nav_items.push(branchNavItem)
-            if(result.rows[0].inventory_assigned)
+            if (result.rows[0].inventory_assigned)
                 nav_items.push(InventoryNavItem)
-        } else if (result.rows[0].designation == 'Customer Relationship Manager'){
+        } else if (result.rows[0].designation == 'Customer Relationship Manager') {
             base_route = 'crm'
             nav_items = [...employeeNavItems]
-            if(result.rows[0].branch_expenses_assigned)
+            if (result.rows[0].branch_expenses_assigned)
                 nav_items.push(branchNavItem)
-            if(result.rows[0].inventory_assigned)
+            if (result.rows[0].inventory_assigned)
                 nav_items.push(InventoryNavItem)
         }
-        
-        else if (result.rows[0].designation == 'Customer Relationship Manager (After Sales)'){
+
+        else if (result.rows[0].designation == 'Customer Relationship Manager (After Sales)') {
             base_route = 'aftersales'
             nav_items = [...employeeNavItems]
-            if(result.rows[0].branch_expenses_assigned)
+            if (result.rows[0].branch_expenses_assigned)
                 nav_items.push(branchNavItem)
-            if(result.rows[0].inventory_assigned)
+            if (result.rows[0].inventory_assigned)
                 nav_items.push(InventoryNavItem)
         }
-        else if (result.rows[0].designation == 'Manager'){
+        else if (result.rows[0].designation == 'Manager') {
             base_route = 'manager'
             nav_items = [...employeeNavItems]
-            if(result.rows[0].branch_expenses_assigned)
+            if (result.rows[0].branch_expenses_assigned)
                 nav_items.push(branchNavItem)
-            if(result.rows[0].inventory_assigned)
+            if (result.rows[0].inventory_assigned)
                 nav_items.push(InventoryNavItem)
         }
-        return NextResponse.json({ ...result.rows[0], nav_items: nav_items, base_route : base_route }, { status: 200 })
+        return NextResponse.json({ ...result.rows[0], nav_items: nav_items, base_route: base_route }, { status: 200 })
 
     } catch (error) {
         console.error('Error inserting data: ', error);

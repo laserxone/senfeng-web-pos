@@ -7,6 +7,7 @@ export async function GET(req, { params }) {
     try {
         const { id } = await params
         const userId = id
+        
 
         if (!userId) {
             return NextResponse.json({ error: "User ID is required" }, { status: 400 });
@@ -14,6 +15,8 @@ export async function GET(req, { params }) {
 
         const searchParams = req.nextUrl.searchParams
         const employee = searchParams.get('employee')
+        const access = searchParams.get("access")
+              
 
         const topFollowupQuery = `
             SELECT DISTINCT ON (f.customer_id) f.*, c.*
@@ -31,13 +34,25 @@ export async function GET(req, { params }) {
             SELECT * FROM customer 
             WHERE ownership = $1 AND member = false;
         `;
+
         recentCustomer = await pool.query(recentCustomerQuery, [userId]);
         } else {
-            recentCustomerQuery = `
-            SELECT * FROM customer 
-            WHERE member = false;
-        `;
-        recentCustomer = await pool.query(recentCustomerQuery);
+            if(access === null || access === 'false'){
+               
+                recentCustomerQuery = `
+                SELECT * FROM customer 
+                WHERE member = false;
+            `;
+            recentCustomer = await pool.query(recentCustomerQuery);
+            } else {
+               
+                recentCustomerQuery = `
+                SELECT * FROM customer 
+                WHERE member = false AND created_by = $1;
+            `;
+            recentCustomer = await pool.query(recentCustomerQuery, [userId]);
+            }
+           
         }
         // Fetch recent customers
 
