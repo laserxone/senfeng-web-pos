@@ -9,13 +9,7 @@ export async function GET(req, { params }) {
     try {
         const threeMonthsBack = moment().subtract(3, 'months').startOf('month').toDate();
 
-        // Step 1: Query attendance records before 3 months back where image_time_in exists
-        const attendanceQuery = `
-            SELECT * 
-            FROM attendance 
-            WHERE time_in < $1 AND (image_time_in IS NOT NULL AND image_time_in != '')
-        `;
-        const attendanceResults = await pool.query(attendanceQuery, [threeMonthsBack]);
+      
 
         // Step 2: Query branchexpenses records before 3 months back where image exists
         const branchexpensesQuery = `
@@ -36,11 +30,7 @@ export async function GET(req, { params }) {
         // Step 4: Collect all images to delete
         const imagesToDelete = [];
 
-        // Collect images from attendance
-        attendanceResults.rows.forEach(item => {
-            if (item.image_time_in) imagesToDelete.push(item.image_time_in);
-            if (item.image_time_out) imagesToDelete.push(item.image_time_out);
-        });
+      
 
         // Collect images from branchexpenses
         branchexpensesResults.rows.forEach(item => {
@@ -66,12 +56,7 @@ export async function GET(req, { params }) {
         // Wait for all image deletions to complete
         await Promise.all(promises);
 
-        // Step 6: Update image fields in the database
-        const updateAttendanceQuery = `
-            UPDATE attendance 
-            SET image_time_in = '', image_time_out = ''
-            WHERE time_in < $1 AND (image_time_in IS NOT NULL AND image_time_in != '')
-        `;
+       
         const updateBranchexpensesQuery = `
             UPDATE branchexpenses 
             SET image = ''
@@ -84,7 +69,6 @@ export async function GET(req, { params }) {
         `;
 
         // Execute update queries
-        await pool.query(updateAttendanceQuery, [threeMonthsBack]);
         await pool.query(updateBranchexpensesQuery, [threeMonthsBack]);
         await pool.query(updateReimbursementQuery, [threeMonthsBack]);
 
@@ -92,7 +76,7 @@ export async function GET(req, { params }) {
     } catch (err) {
         console.error(err);
         return NextResponse.json(
-            { error: "Failed to fetch commissions", details: err.message },
+            { error: "Failed ", details: err.message },
             { status: 500 }
         );
     }
