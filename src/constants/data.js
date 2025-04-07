@@ -152,7 +152,7 @@ export const employeeNavItems = [
     items: []
   },
   {
-    title: 'Member',
+    title: 'Members',
     url: '/member',
     isActive: false,
     icon: 'member',
