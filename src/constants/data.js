@@ -70,9 +70,15 @@ export const ownerNavItems = [
 
     items: [
       {
-        title: 'Customer List',
+        title: 'Customer',
         url: '/customer',
         icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
+        title: 'Member',
+        url: '/member',
+        icon: 'member',
         shortcut: ['m', 'm']
       },
       {

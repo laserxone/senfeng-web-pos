@@ -7,13 +7,15 @@ export async function GET(req) {
 
     try {
         const query = `
-      SELECT 
-        c.*, 
-        COALESCE(json_agg(s.serial_no) FILTER (WHERE s.serial_no IS NOT NULL), '[]') AS machines
-      FROM customer c
-      LEFT JOIN sale s ON c.id = s.customer_id
-      GROUP BY c.id
-    `;
+        SELECT 
+          c.*, 
+          COALESCE(u.name, '') AS ownership_name,
+          COALESCE(json_agg(s.serial_no) FILTER (WHERE s.serial_no IS NOT NULL), '[]') AS machines
+        FROM customer c
+        LEFT JOIN sale s ON c.id = s.customer_id
+        LEFT JOIN users u ON c.ownership = u.id
+        GROUP BY c.id, u.name
+      `;
 
         const result = await pool.query(query);
         return NextResponse.json(result.rows, { status: 200 })

@@ -21,7 +21,7 @@ export async function GET(req, { params }) {
         }
         else if (result.rows[0].designation == 'Owner') {
             nav_items = [...ownerNavItems]
-            base_route = "fullaccess"
+            base_route = "superadmin"
         }
         else if (result.rows[0].designation == 'Engineer') {
             base_route = 'engineer'
