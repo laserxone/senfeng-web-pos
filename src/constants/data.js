@@ -143,11 +143,19 @@ export const employeeNavItems = [
   },
  
   {
-    title: 'All Customers',
+    title: 'Customers',
     url: '/customer',
     icon: 'customer',
     isActive: false,
     icon: 'userPen',
+    shortcut: ['m', 'm'],
+    items: []
+  },
+  {
+    title: 'Member',
+    url: '/member',
+    isActive: false,
+    icon: 'member',
     shortcut: ['m', 'm'],
     items: []
   },
