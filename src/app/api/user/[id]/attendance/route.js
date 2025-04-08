@@ -141,7 +141,7 @@ export async function POST(req, { params }) {
             VALUES ($1, $2, $3, $4, NOW()) 
         `, [id, "Pending", task, reason]);
 
-            return NextResponse.json({ message: "Attendance marked (time_in)", data: insertResult.rows[0] }, { status: 201 });
+            return NextResponse.json({ message: "Attendance marked time in", data: insertResult.rows[0] }, { status: 201 });
         }
 
         const existingAttendance = checkResult.rows[0];
@@ -156,14 +156,14 @@ export async function POST(req, { params }) {
         `;
             const updateResult = await pool.query(updateQuery, [note, timestamp, location, fileName, existingAttendance.id]);
 
-            await pool.query(`
-                INSERT INTO task(
-                    assigned_to, status, task_name, type, created_at
-                )
-                VALUES ($1, $2, $3, $4, NOW()) 
-            `, [id, "Pending", task, reason]);
+            // await pool.query(`
+            //     INSERT INTO task(
+            //         assigned_to, status, task_name, type, created_at
+            //     )
+            //     VALUES ($1, $2, $3, $4, NOW()) 
+            // `, [id, "Pending", task, reason]);
 
-            return NextResponse.json({ message: "Attendance marked (time_out)", data: updateResult.rows[0] }, { status: 200 });
+            return NextResponse.json({ message: "Attendance marked time out", data: updateResult.rows[0] }, { status: 200 });
         }
 
         return NextResponse.json({ message: "Attendance already marked for the day" }, { status: 400 });
