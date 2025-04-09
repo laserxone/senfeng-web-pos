@@ -55,6 +55,14 @@ export async function GET(req, { params }) {
             if (result.rows[0].inventory_assigned)
                 nav_items.push(InventoryNavItem)
         }
+        else if (result.rows[0].designation == 'Social Media Manager') {
+            base_route = 'smm'
+            nav_items = [...employeeNavItems]
+            if (result.rows[0].branch_expenses_assigned)
+                nav_items.push(branchNavItem)
+            if (result.rows[0].inventory_assigned)
+                nav_items.push(InventoryNavItem)
+        }
         else if (result.rows[0].designation == 'Manager') {
             base_route = 'manager'
             nav_items = [...employeeNavItems]
