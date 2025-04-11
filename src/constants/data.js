@@ -121,6 +121,24 @@ export const ownerNavItems = [
     isActive: false,
     items: [] // No child items
   },
+
+  {
+    title: 'Quotation',
+    url: '/quotation',
+    icon: 'quotation',
+    shortcut: ['m', 'm'],
+    isActive: false,
+    items: [] // No child items
+  },
+
+  {
+    title: 'Contract',
+    url: '/contract',
+    icon: 'contract',
+    shortcut: ['m', 'm'],
+    isActive: false,
+    items: [] // No child items
+  },
   
 ];
 

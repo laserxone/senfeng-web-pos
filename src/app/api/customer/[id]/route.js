@@ -9,9 +9,10 @@ export async function GET(req, { params }) {
   try {
     // 1. Get customer data with ownership from users table
     const customerQuery = `
-        SELECT c.*, u.name AS ownership_name
+        SELECT c.*, u.name AS ownership_name, l.name AS lead_name
         FROM customer c
         LEFT JOIN users u ON c.ownership = u.id
+        LEFT JOIN users l ON c.lead = l.id
         WHERE c.id = $1
     `;
     const customerResult = await pool.query(customerQuery, [id]);
@@ -119,37 +120,43 @@ export async function DELETE(req, { params }) {
     }
     await pool.query(`DELETE FROM feedback WHERE customer_id = $1`, [id]);
 
+    const visitResult = await pool.query(`SELECT * FROM visit WHERE customer_id = $1`, [id]);
+
+    if (visitResult.rows.length > 0) {
+      for (const item of visitResult.rows) {
+        const image = item.image
+        if (image && !image.includes("http")) {
+          const bucket = admin.storage().bucket()
+          await bucket.file(image).delete()
+          console.log("image deleted")
+        }
+      }
+      await pool.query(`DELETE FROM visit WHERE customer_id = $1`, [id]);
+    }
+
 
     const saleResult = await pool.query(`SELECT * FROM sale WHERE customer_id = $1`, [id]);
 
     if (saleResult.rows.length > 0) {
       const sale = saleResult.rows[0];
 
-      // Step 2: Get machine_id (from sale)
       const machineId = sale.id;
-
-      // Step 3: Check if there are payments associated with the machine_id
       const paymentResult = await pool.query(`SELECT * FROM payment WHERE machine_id = $1`, [machineId]);
 
       if (paymentResult.rows.length > 0) {
-        // Step 4: Iterate over each payment and check the image field
+
         for (const payment of paymentResult.rows) {
           const image = payment.image;
-
-          // If image does not contain .http (indicating it's a Firebase reference)
-          if (!image.includes('.http')) {
-           console.log(image)
+          if (image && !image.includes('http')) {
             const bucket = admin.storage().bucket()
             await bucket.file(image).delete()
             console.log("image deleted")
           }
         }
 
-        // Step 5: Delete all payments associated with the machine_id
         await pool.query(`DELETE FROM payment WHERE machine_id = $1`, [machineId]);
       }
 
-      // Step 6: Delete the sale record
       await pool.query(`DELETE FROM sale WHERE customer_id = $1`, [id]);
     }
 
