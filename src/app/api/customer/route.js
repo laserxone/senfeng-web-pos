@@ -18,12 +18,13 @@ export async function POST(req) {
         const query = `
         INSERT INTO customer (${fields.join(", ")})
         VALUES (${placeholders})
+        RETURNING *
     `;
 
-        await pool.query(query, values);
+        const result = await pool.query(query, values);
 
         console.log("data inserted successfully");
-        return NextResponse.json({ message: "Inserted successfully" }, { status: 201 });
+        return NextResponse.json({ message: "Inserted successfully", data : result.rows[0] }, { status: 201 });
 
     } catch (error) {
         console.error('Error inserting data: ', error);
