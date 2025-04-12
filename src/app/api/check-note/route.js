@@ -13,7 +13,7 @@ export async function POST(req) {
         const trimmedNumber = number.trim();
 
         const paymentQuery = `
-            SELECT id, machine_id 
+            SELECT id, machine_id, note 
             FROM payment 
             WHERE note = $1
         `;
