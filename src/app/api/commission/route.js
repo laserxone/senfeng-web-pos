@@ -11,7 +11,7 @@ export async function POST(req) {
         const data = await req.json();
 
         if (!data || Object.keys(data).length === 0) {
-            return NextResponse.json({ error: "No data provided for insertion" }, { status: 400 });
+            return NextResponse.json({ message: "No data provided for insertion" }, { status: 400 });
         }
 
         const fields = Object.keys(data);
@@ -32,19 +32,19 @@ export async function POST(req) {
 
         // Step 3: Get all owners
         const ownersResult = await pool.query(
-            "SELECT email FROM users WHERE designation = 'Owner'"
+            "SELECT id FROM users WHERE designation = 'Owner'"
         );
-        const ownerEmails = ownersResult.rows.map((owner) => owner.email);
+        const ownerIds = ownersResult.rows.map((owner) => owner.id);
 
         // Step 4: Add notifications to Firestore
         const timestamp = moment().valueOf();
 
-        const notifications = ownerEmails.map((email) => ({
+        const notifications = ownerIds.map((eachId) => ({
             TimeStamp: timestamp,
             page: "commission",
             read: false,
             title: `${userName} applied for commission`,
-            sendTo: email,
+            sendTo: eachId,
         }));
 
         const db = admin.firestore();
@@ -94,7 +94,7 @@ export async function GET(req, { params }) {
     } catch (err) {
         console.error(err);
         return NextResponse.json(
-            { error: "Failed to fetch commissions", details: err.message },
+            { message: "Failed to fetch commissions", details: err.message },
             { status: 500 }
         );
     }

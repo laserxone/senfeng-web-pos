@@ -8,7 +8,7 @@ export async function DELETE(req, { params }) {
     const { id } = await params
 
     if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+      return NextResponse.json({ message: "ID is required" }, { status: 400 });
     }
     await pool.query(`DELETE FROM salaries WHERE id = $1`, [id]);
 

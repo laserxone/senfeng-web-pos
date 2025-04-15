@@ -10,7 +10,7 @@ export async function GET(req, { params }) {
         
 
         if (!userId) {
-            return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+            return NextResponse.json({ message: "User ID is required" }, { status: 400 });
         }
 
         const searchParams = req.nextUrl.searchParams
@@ -87,7 +87,7 @@ export async function GET(req, { params }) {
 
     } catch (error) {
         console.error("Error fetching data:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
 }
 

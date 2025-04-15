@@ -71,7 +71,7 @@ export async function POST(req, { params }) {
         const { id } = await params
 
         if (!data || Object.keys(data).length === 0) {
-            return NextResponse.json({ error: "No data provided for insertion" }, { status: 400 });
+            return NextResponse.json({ message: "No data provided for insertion" }, { status: 400 });
         }
 
         const fields = Object.keys(data);

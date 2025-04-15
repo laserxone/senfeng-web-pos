@@ -1,4 +1,5 @@
 import pool from "@/config/db";
+import { sendNotification } from "@/lib/sendNotification";
 import { NextResponse } from "next/server"
 
 
@@ -8,7 +9,7 @@ export async function POST(req) {
         const data = await req.json();
 
         if (!data || Object.keys(data).length === 0) {
-            return NextResponse.json({ error: "No data provided for insertion" }, { status: 400 });
+            return NextResponse.json({ message: "No data provided for insertion" }, { status: 400 });
         }
 
         const fields = Object.keys(data);
@@ -21,10 +22,16 @@ export async function POST(req) {
         RETURNING *
     `;
 
+
+
         const result = await pool.query(query, values);
 
         console.log("data inserted successfully");
-        return NextResponse.json({ message: "Inserted successfully", data : result.rows[0] }, { status: 201 });
+        if (result.rows[0].ownership) {
+            sendNotification(`${result.rows[0]?.owner || result.rows[0]?.name} assigned to you`, `${result.rows[0].member ? "member" : "customer"}/detail?id=${result.rows[0].id}`, result.rows[0].ownership)
+        }
+
+        return NextResponse.json({ message: "Inserted successfully", data: result.rows[0] }, { status: 201 });
 
     } catch (error) {
         console.error('Error inserting data: ', error);

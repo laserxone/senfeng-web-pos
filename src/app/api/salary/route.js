@@ -106,13 +106,13 @@ export async function POST(req) {
         const data = await req.json();
 
         if (!data || Object.keys(data).length === 0) {
-            return NextResponse.json({ error: "No data provided for insertion" }, { status: 400 });
+            return NextResponse.json({ message: "No data provided for insertion" }, { status: 400 });
         }
 
         const { user_id, month, year, ...otherFields } = data;
 
         if (!user_id || !month || !year) {
-            return NextResponse.json({ error: "Missing user_id, month, or year" }, { status: 400 });
+            return NextResponse.json({ message: "Missing user_id, month, or year" }, { status: 400 });
         }
 
         // Check if record exists

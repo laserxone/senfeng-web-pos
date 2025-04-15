@@ -5,19 +5,34 @@ import { NextResponse } from "next/server"
 export async function GET(req, { params }) {
 
     const { id } = await params
+    const searchParams = req.nextUrl.searchParams
+    const start_date = searchParams.get('start_date')
+    const end_date = searchParams.get('end_date')
 
     try {
         let query = `
     SELECT 
     r.*, 
     u.id AS user_id, 
-    u.name AS user_name
+    u.name AS user_name,
+      c.name AS customer_name,
+     c.owner AS customer_owner,
+    c.location AS customer_location,
+    c.number AS customer_number,
+    c.member AS customer_member,
+      c.id AS customer_id
 FROM visit r
 INNER JOIN users u ON r.user_id = u.id
+INNER JOIN customer c ON r.customer_id = c.id
 WHERE r.customer_id = $1
     `;
 
         const queryParams = [id];
+
+        if (start_date && end_date) {
+            query += ` AND r.created_at BETWEEN $2 AND $3`;
+            queryParams.push(start_date, end_date);
+        }
 
         query += ` ORDER BY r.created_at DESC;`;
         const result = await pool.query(query, queryParams);
@@ -38,7 +53,7 @@ export async function POST(req, { params }) {
         const { id } = await params
 
         if (!data || Object.keys(data).length === 0) {
-            return NextResponse.json({ error: "No data provided for insertion" }, { status: 400 });
+            return NextResponse.json({ message: "No data provided for insertion" }, { status: 400 });
         }
 
         const fields = Object.keys(data);

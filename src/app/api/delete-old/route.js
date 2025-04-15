@@ -76,7 +76,7 @@ export async function GET(req, { params }) {
     } catch (err) {
         console.error(err);
         return NextResponse.json(
-            { error: "Failed ", details: err.message },
+            { message: "Failed ", details: err.message },
             { status: 500 }
         );
     }

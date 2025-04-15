@@ -112,7 +112,7 @@ import { NextResponse } from "next/server"
 //                             await client.query(paymentQuery, paymentValues)
 //                             console.log(payment.note, "done")
 //                         } catch (error) {
-//                             console.log("payment error: ", error)
+//                             console.log("payment message: ", error)
 //                         }
 
 //                     }
@@ -141,7 +141,7 @@ export async function POST(req) {
         const data = await req.json();
 
         if (!data || Object.keys(data).length === 0) {
-            return NextResponse.json({ error: "No data provided for insertion" }, { status: 400 });
+            return NextResponse.json({ message: "No data provided for insertion" }, { status: 400 });
         }
 
         const fields = Object.keys(data);

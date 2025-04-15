@@ -12,7 +12,7 @@ export async function GET(req, { params }) {
     const { id } = await params
     const searchParams = req.nextUrl.searchParams
     const start_date = searchParams.get('start_date')
-    const end_date = searchParams.get('end_date')
+    const end_date = searchParams.get('end_date') 
 
     if (!id) {
         return NextResponse.json({ message: "Parameters missing" }, { status: 404 })
@@ -95,7 +95,7 @@ WHERE u.id = $1
 
 
     } catch (error) {
-        console.error('Error: ', error);
+        console.error('message: ', error);
         return NextResponse.json({ message: error.message || "Something went wrong" }, { status: 500 })
     }
 
@@ -169,7 +169,7 @@ export async function POST(req, { params }) {
         return NextResponse.json({ message: "Attendance already marked for the day" }, { status: 400 });
 
     } catch (error) {
-        console.log("Error:", error);
+        console.log("message:", error);
         return NextResponse.json({ message: error?.message || "Something went wrong" }, { status: 500 });
     }
 }

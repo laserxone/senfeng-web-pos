@@ -76,7 +76,7 @@ export async function PUT(req, { params }) {
     const { id } = await params
 
     if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+      return NextResponse.json({ message: "ID is required" }, { status: 400 });
     }
 
     const fields = [];
@@ -90,7 +90,7 @@ export async function PUT(req, { params }) {
     });
 
     if (fields.length === 0) {
-      return NextResponse.json({ error: "No valid data provided for update" }, { status: 400 });
+      return NextResponse.json({ message: "No valid data provided for update" }, { status: 400 });
     }
 
     values.push(id); // Add ID as the last parameter for WHERE clause
@@ -106,7 +106,7 @@ export async function PUT(req, { params }) {
     return NextResponse.json({ message: "Updated successfully" }, { status: 200 });
   } catch (error) {
     console.error("Error updating inventory data:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -116,7 +116,7 @@ export async function DELETE(req, { params }) {
     const { id } = await params
 
     if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+      return NextResponse.json({ message: "ID is required" }, { status: 400 });
     }
     await pool.query(`DELETE FROM feedback WHERE customer_id = $1`, [id]);
 

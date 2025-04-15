@@ -122,7 +122,7 @@ export async function GET(req, { params }) {
   } catch (error) {
     console.error("Error fetching data:", error);
     return NextResponse.json(
-      { message: "Error fetching data", error: error.message },
+      { message: "Error fetching data", message: error.message },
       { status: 500 }
     );
   }
@@ -135,7 +135,7 @@ export async function PUT(req, { params }) {
     const { id } = await params
 
     if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+      return NextResponse.json({ message: "ID is required" }, { status: 400 });
     }
 
     const fields = [];
@@ -149,7 +149,7 @@ export async function PUT(req, { params }) {
     });
 
     if (fields.length === 0) {
-      return NextResponse.json({ error: "No valid data provided for update" }, { status: 400 });
+      return NextResponse.json({ message: "No valid data provided for update" }, { status: 400 });
     }
 
     values.push(id);
@@ -165,7 +165,7 @@ export async function PUT(req, { params }) {
     return NextResponse.json({ message: "Updated successfully" }, { status: 200 });
   } catch (error) {
     console.error("Error updating data:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 

@@ -52,7 +52,7 @@ export async function POST(req) {
         const { task_name, type, client, status, assigned_to } = await req.json();
 
         if (!task_name || !type || !status || !assigned_to) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+            return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
         }
 
         let taskName = task_name;
@@ -80,7 +80,7 @@ export async function POST(req) {
 
     } catch (error) {
         console.error("Error inserting task data:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
 }
 
