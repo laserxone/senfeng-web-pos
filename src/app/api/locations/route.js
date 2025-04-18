@@ -46,31 +46,19 @@ export async function GET(req, { params }) {
     const user = searchParams.get('user')
 
     try {
-        let query = `
-        SELECT 
-          r.*, 
-          u.id AS user_id, 
-          u.name AS user_name
-        FROM leave r
-        INNER JOIN users u ON r.user_id = u.id
-      `;
+        const query = `
+        SELECT l.*, u.id AS user_id, u.name AS user_name
+        FROM locations l
+        INNER JOIN (
+            SELECT user_id, MAX(created_at) AS latest_created_at
+            FROM locations
+            GROUP BY user_id
+        ) latest ON l.user_id = latest.user_id AND l.created_at = latest.latest_created_at
+        INNER JOIN users u ON l.user_id = u.id
+        ORDER BY l.created_at DESC;
+    `;
 
-        const queryParams = [];
-
-        if (start_date && end_date) {
-            query += ` WHERE r.date BETWEEN $1 AND $2`;
-            queryParams.push(start_date, end_date);
-        }
-
-        if (user) {
-            query += ` AND user_id = $3`;
-            queryParams.push(user);
-        }
-
-
-        query += ` ORDER BY r.date DESC;`;
-
-        const result = await pool.query(query, queryParams);
+        const result = await pool.query(query);
         return NextResponse.json(result.rows, { status: 200 });
 
     } catch (error) {
