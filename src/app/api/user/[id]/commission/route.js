@@ -27,7 +27,9 @@ export async function GET(req, { params }) {
                 'SELECT * FROM payment WHERE machine_id = $1',
                 [sale.id]
               );
-              const payments = paymentResult.rows || [];
+              const payments = (paymentResult.rows || []).filter(
+                (payment) => payment.clearance_date !== null
+              );
           
               // Sum payment amounts
               const paid_amount = payments.reduce((sum, payment) => {

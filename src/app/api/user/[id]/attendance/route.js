@@ -1,11 +1,10 @@
 
 import pool from "@/config/db";
-import { db, storage } from "@/config/firebase";
+import { storage } from "@/config/firebase";
 import admin from "@/lib/firebaseAdmin";
-import { UploadImage } from "@/lib/uploadFunction";
-import { getDownloadURL, getStorage, ref, uploadBytes, uploadString } from "firebase/storage";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import moment from "moment";
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
 
 
 export async function GET(req, { params }) {
@@ -183,9 +182,7 @@ async function UploadImageForMobile(image, fileName) {
 
             await uploadString(storageRef, image, "base64", { contentType: "image/png" });
 
-
-            const imageUrl = await getDownloadURL(storageRef); // Get image URL
-            resolve(imageUrl);
+            resolve(true);
         } catch (error) {
             console.log(error)
             reject(null)

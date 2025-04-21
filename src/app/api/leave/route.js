@@ -1,4 +1,5 @@
 import pool from "@/config/db";
+import moment from "moment";
 import { NextResponse } from "next/server"
 
 
@@ -6,9 +7,24 @@ export async function POST(req) {
 
     try {
         const data = await req.json();
+        
 
         if (!data || Object.keys(data).length === 0) {
             return NextResponse.json({ message: "No data provided for insertion" }, { status: 400 });
+        }
+
+        const startOfDay = moment(data.date).startOf("day").toISOString();
+        const endOfDay = moment(data.date).endOf("day").toISOString();
+      
+        // Query to check for existing leave
+        const existingLeaveQuery = `
+          SELECT * FROM leave 
+          WHERE user_id = $1 AND date BETWEEN $2 AND $3
+        `;
+        const existingLeaveResult = await pool.query(existingLeaveQuery, [data.user_id, startOfDay, endOfDay]);
+      
+        if (existingLeaveResult.rows.length > 0) {
+          return NextResponse.json({ message: "Leave already applied for today" }, { status: 409 });
         }
 
         const fields = Object.keys(data);
@@ -32,6 +48,7 @@ export async function POST(req) {
             , { status: 200 });
 
     } catch (error) {
+        console.log(error)
         return NextResponse.json({ message: 'Error adding leave' }, { status: 500 })
     }
 }
@@ -44,7 +61,6 @@ export async function GET(req, { params }) {
     const start_date = searchParams.get('start_date')
     const end_date = searchParams.get('end_date')
     const user = searchParams.get('user')
-
     try {
         let query = `
         SELECT 
