@@ -1,5 +1,7 @@
 import pool from "@/config/db";
+import { auth } from "@/config/firebase";
 import admin from "@/lib/firebaseAdmin";
+import { sendPasswordResetEmail } from "firebase/auth";
 import { NextResponse } from "next/server"
 
 
@@ -66,6 +68,28 @@ export async function POST(req) {
       return NextResponse.json({ message: "No data provided for insertion" }, { status: 400 });
     }
 
+    const { email } = data;
+
+    const checkEmail = await pool.query(`SELECT id FROM users WHERE email = $1`, [email])
+    if (checkEmail.rows.length != 0) {
+      return NextResponse.json({ message: "Email already exists in the system" }, { status: 400 })
+    }
+
+    const password = "1234qwer!@#";
+
+    try {
+      await admin.auth().createUser({
+        email,
+        password,
+      });
+    } catch (error) {
+      if (error.code === 'auth/email-already-exists') {
+        console.warn(`Email ${email} already exists in Firebase, continuing...`);
+      } else {
+        throw error;
+      }
+    }
+
     const fields = Object.keys(data);
     const values = Object.values(data);
     const placeholders = fields.map((_, index) => `$${index + 1}`).join(", ");
@@ -74,30 +98,20 @@ export async function POST(req) {
       INSERT INTO users (${fields.join(", ")})
       VALUES (${placeholders})
       RETURNING *
-  `;
+    `;
 
     const { rows } = await pool.query(query, values);
     const newUser = rows[0];
 
-    const { name, email, designation } = data
-
-    const db = admin.firestore();
-
-    await db.collection("AllowedUsers").add({
-      name: name,
-      email: email,
-      designation: designation,
-      company: "Senfeng",
-      dp: "",
-    }).then(() => {
-      console.log("user added in firebase")
+    sendPasswordResetEmail(auth, email, {
+      url: "https://senfeng-web.vercel.app/login"
     })
 
     return NextResponse.json(newUser, { status: 200 });
 
   } catch (error) {
     console.error('Error inserting data: ', error);
-    return NextResponse.json({ message: 'Error adding user' }, { status: 500 })
+    return NextResponse.json({ message: error?.message || 'Error adding user' }, { status: 500 });
   }
 }
 
