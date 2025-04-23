@@ -61,22 +61,30 @@ export async function POST(req) {
             const clientResult = await pool.query("SELECT name FROM customer WHERE id = $1", [client]);
             if (clientResult.rows.length > 0) {
                 taskName += ` - ${clientResult.rows[0].name}`;
+                const query = `
+                INSERT INTO task(
+                    assigned_to, status, task_name, type, created_at, customer_id
+                )
+                VALUES ($1, $2, $3, $4, NOW(), $5) 
+            `;
+                const values = [assigned_to, status, taskName, type, client];
+                await pool.query(query, values);
+                return NextResponse.json({ message: "Task created successfully" }, { status: 201 });
             }
         }
 
         const query = `
-            INSERT INTO task(
-                assigned_to, status, task_name, type, created_at
-            )
-            VALUES ($1, $2, $3, $4, NOW()) 
-        `;
+        INSERT INTO task(
+            assigned_to, status, task_name, type, created_at
+        )
+        VALUES ($1, $2, $3, $4, NOW()) 
+    `;
 
         const values = [assigned_to, status, taskName, type];
-
         await pool.query(query, values);
-
-        console.log("Task data inserted successfully");
         return NextResponse.json({ message: "Task created successfully" }, { status: 201 });
+
+
 
     } catch (error) {
         console.error("Error inserting task data:", error);
@@ -88,7 +96,7 @@ export async function POST(req) {
 
 export async function GET(req) {
 
-   
+
     const searchParams = req.nextUrl.searchParams
     const start_date = searchParams.get('start_date')
     const end_date = searchParams.get('end_date')
@@ -111,7 +119,7 @@ INNER JOIN users u ON t.assigned_to = u.id
             query += ` WHERE t.created_at BETWEEN $1 AND $2`;
             queryParams.push(start_date, end_date);
         }
-        if(user){
+        if (user) {
             query += ` AND t.assigned_to = $3`;
             queryParams.push(user);
         }

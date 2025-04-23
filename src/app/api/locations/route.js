@@ -45,8 +45,12 @@ export async function GET(req, { params }) {
     const end_date = searchParams.get('end_date')
     const user = searchParams.get('user')
 
+
     try {
-        const query = `
+
+
+        if (!user) {
+            const query = `
         SELECT l.*, u.id AS user_id, u.name AS user_name
         FROM locations l
         INNER JOIN (
@@ -58,8 +62,21 @@ export async function GET(req, { params }) {
         ORDER BY l.created_at DESC;
     `;
 
-        const result = await pool.query(query);
-        return NextResponse.json(result.rows, { status: 200 });
+            const result = await pool.query(query);
+            return NextResponse.json(result.rows, { status: 200 });
+        } else {
+            const query = `
+            SELECT l.*, u.id AS user_id, u.name AS user_name
+            FROM locations l
+            INNER JOIN users u ON l.user_id = u.id
+            WHERE user_id = $1
+            ORDER BY l.created_at ASC
+          `;
+
+            const result = await pool.query(query, [user]);
+            return NextResponse.json(result.rows, { status: 200 });
+        }
+
 
     } catch (error) {
         console.error('Error inserting data: ', error);
