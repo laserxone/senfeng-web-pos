@@ -510,9 +510,11 @@ export default function POS() {
                             Search Invoice
                         </Button>
 
+                       
+
                         {searchInvocie &&
                             <div className='flex w-full gap-4'>
-                                <Input placeholder="Search by: invoice no, phone no, customer name, company name" value={itemSearch} onChange={(e) => setItemSearch(e.target.value)} />
+                                <Input placeholder="Search by: invoice no, phone no, customer name, company name, part name" value={itemSearch} onChange={(e) => setItemSearch(e.target.value)} />
                                 <Button disabled={!itemSearch} onClick={() => {
                                     setSearchLoading(true)
                                     handleItemSearch()

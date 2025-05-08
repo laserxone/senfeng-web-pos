@@ -7,12 +7,16 @@ export async function GET(req, { params }) {
     try {
        
         const query = `
-            SELECT * FROM savedinvoices 
-            WHERE 
-                name ILIKE $1 OR 
-                company ILIKE $1 OR 
-                phone ILIKE $1 OR 
-                invoicenumber ILIKE $1
+          SELECT * FROM savedinvoices 
+    WHERE 
+      name ILIKE $1 OR 
+      company ILIKE $1 OR 
+      phone ILIKE $1 OR 
+      invoicenumber ILIKE $1 OR 
+      EXISTS (
+        SELECT 1 FROM jsonb_array_elements(fields) AS elem
+        WHERE elem->>'name' ILIKE $1
+      )
         `;
 
         const values = [`%${searchitem}%`];
