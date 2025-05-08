@@ -13,8 +13,8 @@ import { Card } from './ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { ArrowUpDown, Copy, Loader2, Minus, PencilIcon, Plus } from 'lucide-react';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { ArrowUpDown, Copy, Loader2, Minus, PencilIcon, Plus, Siren } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 import Dropzone from './dropzone';
 import { storage } from '@/config/firebase';
@@ -27,6 +27,9 @@ import 'pdfjs-dist/legacy/web/pdf_viewer.css';
 import { pdfjs } from 'react-pdf';
 import * as pdfjsLib from "pdfjs-dist";
 import "pdfjs-dist/build/pdf.worker.mjs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import NotificationBadge from './NotificationBadge';
+import { Checkbox } from './ui/checkbox';
 
 // pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 // pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -64,6 +67,11 @@ export default function POS() {
     const [searchModal, setSearchModal] = useState(false)
     const [searchItemsResult, setSearchItemsResult] = useState([])
     const [selectedSearchItem, setSelectedSearchItem] = useState(null)
+    const [checked, setChecked] = useState(false)
+    const [modal, setModal] = useState(false)
+    const [reminder, setReminder] = useState([])
+    const [warranty, setWarranty] = useState(false)
+    const [warrantyYear, setWarrantyYear] = useState(1)
 
     useEffect(() => {
 
@@ -81,7 +89,7 @@ export default function POS() {
 
     const handleUpdateInvoice = async () => {
         handleInvoiceBackendData()
-        const blob = await pdf(<InvoicePDF companyName={companyName} name={name} phoneNumber={phoneNumber} address={address} manager={manager} nextInvoice={nextInvoice} invoiceItems={invoiceItems} totalAmount={totalAmount} />).toBlob();
+        const blob = await pdf(<InvoicePDF companyName={companyName} name={name} phoneNumber={phoneNumber} address={address} manager={manager} nextInvoice={nextInvoice} invoiceItems={invoiceItems} totalAmount={totalAmount} warranty={warranty} warrantyYear={warrantyYear} />).toBlob();
         const url = URL.createObjectURL(blob);
         window.open(url, "_blank");
         setTimeout(() => URL.revokeObjectURL(url), 600000);
@@ -100,7 +108,7 @@ export default function POS() {
 
         axios.put(`/api/pos/update/${selectedSearchItem.id}`, {
             olditems: selectedSearchItem,
-            newitems: { name: name, company: companyName, phone: phoneNumber, address: address, manager: manager, invoicenumber: nextInvoice, fields: invoiceItems }
+            newitems: { name: name, company: companyName, phone: phoneNumber, address: address, manager: manager, invoicenumber: nextInvoice, fields: invoiceItems, payment : checked }
         }).finally(() => {
             fetchData()
             setSelectedSearchItem(null)
@@ -111,7 +119,7 @@ export default function POS() {
 
     const generatePDF = async () => {
         handleUpdateStock()
-        const blob = await pdf(<InvoicePDF companyName={companyName} name={name} phoneNumber={phoneNumber} address={address} manager={manager} nextInvoice={nextInvoice} invoiceItems={invoiceItems} totalAmount={totalAmount} />).toBlob();
+        const blob = await pdf(<InvoicePDF companyName={companyName} name={name} phoneNumber={phoneNumber} address={address} manager={manager} nextInvoice={nextInvoice} invoiceItems={invoiceItems} totalAmount={totalAmount} warranty={warranty} warrantyYear={warrantyYear} />).toBlob();
         const url = URL.createObjectURL(blob);
         window.open(url, "_blank");
         setTimeout(() => URL.revokeObjectURL(url), 600000);
@@ -121,21 +129,22 @@ export default function POS() {
 
         const modified = stock.filter((item) => item?.modified)
 
-        
-            axios.put("/api/pos", {
-                entries: modified,
-                name: name,
-                company: companyName,
-                phone: phoneNumber,
-                address: address,
-                manager: manager,
-                invoicenumber: nextInvoice,
-                fields: invoiceItems,
 
-            }).finally(() => {
-                fetchData()
-            })
-     
+        axios.put("/api/pos", {
+            entries: modified,
+            name: name,
+            company: companyName,
+            phone: phoneNumber,
+            address: address,
+            manager: manager,
+            invoicenumber: nextInvoice,
+            fields: invoiceItems,
+            payment: checked
+
+        }).finally(() => {
+            fetchData()
+        })
+
 
     }
 
@@ -157,6 +166,11 @@ export default function POS() {
                 }
                 if (response.data?.lastInventoryId) {
                     setNextInvoice(`${moment().format("YYYYMMDD")}-${response.data?.lastInventoryId + 1}`)
+                }
+
+                if (response.data?.reminders) {
+                    console.log(response.data.reminders)
+                    setReminder(response.data.reminders)
                 }
 
             })
@@ -364,7 +378,7 @@ export default function POS() {
             })
     }
 
-    async function handleReset(){
+    async function handleReset() {
         setLoading(true)
         setCustomerLoading(true)
         setSearchItemsResult([])
@@ -462,7 +476,26 @@ export default function POS() {
                                     }} />
                             </div>
                         </Card>
-                        <div className="flex justify-end w-full mt-4">
+                        <div className="flex justify-between w-full mt-4">
+                            <div className='flex flex-row gap-5 items-center'>
+
+                                <div className="flex items-center justify-between bg-white shadow-md rounded-lg px-4 py-2 w-fit gap-2">
+                                    <Label className="text-lg font-semibold text-gray-800">Pending Payments</Label>
+                                    <NotificationBadge count={reminder.length} className="ml-3 bg-red-600 text-white rounded-full px-3 py-1 text-sm font-bold shadow-sm" />
+                                </div>
+                                <div className="flex flex-row gap-2 items-center mr-2">
+                                    <Label className="text-lg">Include warranty</Label>
+                                    <Checkbox
+                                        checked={warranty}
+                                        onCheckedChange={setWarranty}
+                                    />
+                                    {warranty && <div>
+                                        <Input type="number" value={warrantyYear} onChange={(e) => setWarrantyYear(e.target.value)} />
+                                    </div>
+                                    }
+                                </div>
+
+                            </div>
                             <div className="w-72 flex border rounded-md overflow-hidden">
                                 <div className="flex-1 bg-gray-200 p-3 font-bold text-center">Total Amount</div>
                                 <div className="flex-1 bg-white p-3 font-bold text-center">{totalAmount ? `${totalAmount}` : "0"}</div>
@@ -485,9 +518,7 @@ export default function POS() {
                             :
                             <Button
                                 onClick={() => {
-                                    setLoading(true)
-                                    setCustomerLoading(true)
-                                    generatePDF()
+                                    setModal(true)
 
                                 }}
                                 disabled={invoiceItems.length === 0}
@@ -510,7 +541,7 @@ export default function POS() {
                             Search Invoice
                         </Button>
 
-                       
+
 
                         {searchInvocie &&
                             <div className='flex w-full gap-4'>
@@ -576,29 +607,35 @@ export default function POS() {
                                                     </td>
                                                 </tr>
                                             ))}
-                                            {invoiceItems.length <= 10 && [...Array(10 - invoiceItems.length)].map((_, i) => (
-                                                <tr key={i} style={{ fontSize: 14, height: 30 }}>
-                                                    <td className="border border-gray-300 " style={{ paddingLeft: 5, }}><Label>{i + invoiceItems.length + 1}</Label></td>
-                                                    <td className="border border-gray-300 " style={{ paddingLeft: 5, }}>
+                                            {
+                                                !warranty
+                                                && invoiceItems.length <= 10 && [...Array(10 - invoiceItems.length)].map((_, i) => (
+                                                    <tr key={i} style={{ fontSize: 14, height: 30 }}>
+                                                        <td className="border border-gray-300 " style={{ paddingLeft: 5, }}><Label>{i + invoiceItems.length + 1}</Label></td>
+                                                        <td className="border border-gray-300 " style={{ paddingLeft: 5, }}>
 
-                                                    </td>
-                                                    <td className="border border-gray-300 ">
+                                                        </td>
+                                                        <td className="border border-gray-300 ">
 
-                                                    </td>
-                                                    <td className="border border-gray-300">
+                                                        </td>
+                                                        <td className="border border-gray-300">
 
-                                                    </td>
-                                                    <td className="border border-gray-300 ">
+                                                        </td>
+                                                        <td className="border border-gray-300 ">
 
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                                        </td>
+                                                    </tr>
+                                                ))
+
+
+                                            }
                                         </tbody>
                                     </table>
                                 </div>
 
                                 {/* Total Amount */}
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 5 }}>
+
                                     <div style={{ width: '300px', display: 'flex', }}>
                                         <div style={{ flex: 1, height: '200px', backgroundColor: '#0072BC', color: 'white', paddingLeft: 5, height: 50, display: 'flex', alignItems: 'center', fontWeight: '600' }}>
                                             <Label>Total Amount</Label>
@@ -608,6 +645,39 @@ export default function POS() {
                                         </div>
                                     </div>
                                 </div>
+                                {warranty &&
+                                    <div
+                                        className="w-full my-2"
+                                        style={{
+                                            padding: '1rem',
+                                            fontFamily: 'Arial, sans-serif',
+                                            lineHeight: '1.6',
+                                            borderWidth: 0.5,
+                                            borderColor: '#ccc',
+                                        }}
+                                    >
+                                        <div style={{ color: 'red', fontWeight: '500', fontSize: '12px' }}>
+                                            {warrantyYear}-Year Warranty for New Source (Will Start on the Date of Installation)
+                                            *Warranty does not cover damages caused by mishandling, misuse, abuse, unstable electricity & voltage fluctuation, inexpert repair, improper transportation, unsuitable storage or use under harsh environment or conditions at Buyer&apos;s end.
+                                        </div>
+
+                                        <div
+                                            style={{
+                                                textAlign: 'center',
+                                                color: 'orange',
+                                                fontWeight: 'bold',
+                                                fontSize: '1.1rem',
+                                            }}
+                                        >
+                                            Terms and Conditions:
+                                        </div>
+
+                                        <div style={{ marginTop: '0.5rem', fontSize: '12px' }}>
+                                            Equipment can only be used after full payments only and broken seals are not acceptable for any return or warranties. Sensitive repair and maintenance can only be done by Raycus/MAX China within warranty time. Customer will send and receive the equipment to manufacturer by himself.
+                                        </div>
+                                    </div>
+
+                                }
 
                                 <BankDetail />
 
@@ -629,6 +699,39 @@ export default function POS() {
                         setNextInvoice(val.invoicenumber)
                     }} />
                 </div>
+
+                <Dialog open={modal} onOpenChange={setModal}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>Payment status</DialogTitle>
+                        </DialogHeader>
+                        <div className="flex flex-col space-y-2">
+
+                            <div className="flex flex-row gap-2 items-center">
+                                <Label className="text-lg">Payment paid</Label>
+                                <Checkbox
+                                    checked={checked}
+                                    onCheckedChange={setChecked}
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter className="justify-start sm:justify-end gap-2">
+                            <DialogClose asChild>
+                                <Button variant="secondary">Close</Button>
+                            </DialogClose>
+                            <Button
+                                onClick={() => {
+                                    setModal(false);
+                                    setLoading(true)
+                                    setCustomerLoading(true)
+                                    generatePDF()
+                                }}
+                            >
+                                Proceed
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </PageContainer >
     )
 }
@@ -1252,11 +1355,11 @@ const AddNewProduct = ({ visible, onClose, onRefresh }) => {
             })
                 .then((response) => {
                     console.log(response.data)
-                    
+
                     onRefresh()
                 }).catch((e) => {
                     console.log(e)
-                }).finally(()=>{
+                }).finally(() => {
                     setLoading(false)
                 })
         } catch (error) {

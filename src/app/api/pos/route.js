@@ -9,8 +9,9 @@ export async function GET(req, res) {
     try {
         const result = await pool.query("SELECT * FROM inventory ORDER BY id ASC");
         const lastIdResult = await pool.query("SELECT MAX(id) AS last_id FROM savedinvoices");
+        const reminders = await pool.query("SELECT * FROM savedinvoices WHERE payment=false");
 
-        return NextResponse.json({ stock: result.rows, lastInventoryId: lastIdResult.rows[0]?.last_id || 0 }, { status: 200 })
+        return NextResponse.json({ stock: result.rows, lastInventoryId: lastIdResult.rows[0]?.last_id || 0, reminders : reminders.rows }, { status: 200 })
     } catch (error) {
         console.log(error)
         return NextResponse.json({ message: "Processing error" }, { status: 500 })
@@ -62,7 +63,7 @@ export async function POST(req) {
         RETURNING *
     `;
 
-       const {rows} =  await pool.query(query, values);
+        const { rows } = await pool.query(query, values);
 
         console.log("data inserted successfully");
         return NextResponse.json({
@@ -87,16 +88,17 @@ export async function PUT(req, res) {
             address,
             manager,
             invoicenumber,
-            fields
+            fields,
+            payment
         } = await req.json();
 
         await pool.query(
             `INSERT INTO savedinvoices 
-            (name, company, phone, address, manager, invoicenumber, fields) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-            [name, company, phone, address, manager, invoicenumber, JSON.stringify(fields)]
+            (name, company, phone, address, manager, invoicenumber, fields, payment) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, %8)`,
+            [name, company, phone, address, manager, invoicenumber, JSON.stringify(fields), payment]
         );
-        if(entries.length > 0){
+        if (entries.length > 0) {
             for (const entry of entries) {
                 const { id, qty } = entry;
                 await pool.query(
@@ -105,7 +107,7 @@ export async function PUT(req, res) {
                 );
             }
         }
-       
+
 
         const result = await pool.query("SELECT id FROM poscustomer WHERE phone = $1 LIMIT 1", [phone]);
         if (result.rows.length > 0) {

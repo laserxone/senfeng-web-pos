@@ -5,7 +5,7 @@ import { Box } from '@chakra-ui/react';
 
 
 
-const InvoicePDF = ({ companyName, name, phoneNumber, address, manager, nextInvoice, invoiceItems, totalAmount }) => {
+const InvoicePDF = ({ companyName, name, phoneNumber, address, manager, nextInvoice, invoiceItems, totalAmount, warranty, warrantyYear }) => {
 
 
   return (
@@ -53,7 +53,7 @@ const InvoicePDF = ({ companyName, name, phoneNumber, address, manager, nextInvo
               </View>
             ))}
 
-            {invoiceItems.length <= 10 && [...Array(10 - invoiceItems.length)].map((_, i) => (
+            {!warranty && invoiceItems.length <= 10 && [...Array(10 - invoiceItems.length)].map((_, i) => (
               <View key={i} style={{ width: '100%', display: 'flex', flexDirection: 'row', backgroundColor: i % 2 === 0 ? "#f1f1f1" : "white", border: '1px solid #D1D5DB', borderTopWidth: i !== 0 && 0 }}>
                 <View style={[{ textAlign: 'left', display: 'flex', justifyContent: 'center', height: 20, paddingLeft: 5, width: 30, }]}>
                   <Text style={{ fontSize: 10, color: 'black' }}>{i + invoiceItems.length + 1}</Text>
@@ -68,16 +68,52 @@ const InvoicePDF = ({ companyName, name, phoneNumber, address, manager, nextInvo
           </View>
 
           {/* Total Amount */}
-          <View style={{ display: 'flex', width: '100%', alignItems: 'flex-end', justifyContent: 'flex-end', marginBottom: 5,  }}>
+          <View style={{ display: 'flex', width: '100%', alignItems: 'flex-end', justifyContent: 'flex-end', marginBottom: 5, }}>
             <View style={{ display: 'flex', flexDirection: 'row' }}>
-              <View style={{  backgroundColor: '#0072BC', color: 'white', paddingLeft: 5, height: 35, display: 'flex', justifyContent: 'center', width: 100,}}>
+              <View style={{ backgroundColor: '#0072BC', color: 'white', paddingLeft: 5, height: 35, display: 'flex', justifyContent: 'center', width: 100, }}>
                 <Text style={{ fontSize: 12, fontFamily: "Helvetica-Bold" }}>Total Amount</Text>
               </View>
-              <View style={{  backgroundColor: '#0072BC', color: 'white', paddingLeft: 10, height: 35, display: 'flex', justifyContent: 'center', borderLeftWidth: 1, borderColor: 'white', width: 110, }}>
+              <View style={{ backgroundColor: '#0072BC', color: 'white', paddingLeft: 10, height: 35, display: 'flex', justifyContent: 'center', borderLeftWidth: 1, borderColor: 'white', width: 110, }}>
                 <Text style={{ fontSize: 12, fontFamily: "Helvetica-Bold" }}>{totalAmount && new Intl.NumberFormat('en-US').format(totalAmount)}/-</Text>
               </View>
             </View>
           </View>
+
+
+          {warranty &&
+           <View style={{
+            padding: 10,
+            borderWidth: 0.5,
+            borderColor: '#ccc',
+            width: '100%',
+            marginVertical: 2,
+           }}>
+           <Text style={{
+             color: 'red',
+             fontWeight: 'bold',
+             fontSize: 10,
+           }}>
+             {warrantyYear}-Year Warranty for New Source (Will Start on the Date of Installation)
+             *Warranty does not cover damages caused by mishandling, misuse, abuse, unstable electricity & voltage fluctuation, inexpert repair, improper transportation, unsuitable storage or use under harsh environment or conditions at Buyer&apos;s end.
+           </Text>
+       
+           <Text style={{
+             textAlign: 'center',
+             color: 'orange',
+             fontWeight: 'bold',
+             fontSize: 12,
+             marginTop: 10,
+           }}>Terms and Conditions:</Text>
+       
+           <Text style={{
+              marginTop: 5,
+              fontSize: 10,
+           }}>
+             Equipment can only be used after full payments only and broken seals are not acceptable for any return or warranties. Sensitive repair and maintenance can only be done by Raycus/MAX China within warranty time. Customer will send and receive the equipment to manufacturer by himself.
+           </Text>
+         </View>
+          }
+
 
           <BankDetail />
 

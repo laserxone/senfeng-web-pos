@@ -89,3 +89,16 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes pulseOpacity {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-pulse-opacity {
+  animation: pulseOpacity 1.5s ease-in-out infinite;
+}
